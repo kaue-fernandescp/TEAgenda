@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:tea_agenda/pages/admin/escolas/gerenciar_escolas_page.dart';
+import 'package:tea_agenda/pages/admin/usuarios/gerenciar_usuarios_page.dart';
+
+class AdminPage extends StatefulWidget {
+  const AdminPage({super.key});
+
+  @override
+  State<AdminPage> createState() => _AdminPageState();
+}
+
+class _AdminPageState extends State<AdminPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Administração'), centerTitle: true),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Painel Administrativo',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            // TODO: Adicionar funcionalidades administrativas aqui
+            _buildAdminCard(
+              title: 'Gerenciar Escolas',
+              iconData: Icons.school,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarEscolasPage()
+                    ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            // TODO: Adicionar funcionalidades administrativas aqui
+            _buildAdminCard(
+              title: 'Gerenciar Turmas',
+              iconData: Icons.people,
+              onTap: () {
+                // TODO: Implementar navegação para gerenciamento de turmas
+              },
+            ),
+            const SizedBox(height: 24),
+            // TODO: Adicionar funcionalidades administrativas aqui
+            _buildAdminCard(
+              title: 'Gerenciar Alunos',
+              iconData: Icons.people,
+              onTap: () {
+                // TODO: Implementar navegação para gerenciamento de alunos
+              },
+            ),
+            const SizedBox(height: 24),
+            // TODO: Adicionar funcionalidades administrativas aqui
+            _buildAdminCard(
+              title: 'Gerenciar Usuários',
+              iconData: Icons.people,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarUsuariosPage()
+                    ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildAdminCard(
+              title: 'Gerenciar Horários',
+              iconData: Icons.schedule,
+              onTap: () {
+                // TODO: Implementar navegação para gerenciamento de horários
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildAdminCard(
+              title: 'Configurações',
+              iconData: Icons.settings,
+              onTap: () {
+                // TODO: Implementar navegação para configurações
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminCard({
+    required String title,
+    required IconData iconData,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 2,
+      child: ListTile(
+        leading: Icon(iconData),
+        title: Text(title),
+        trailing: const Icon(Icons.arrow_forward_ios),
+        onTap: onTap,
+      ),
+    );
+  }
+}
