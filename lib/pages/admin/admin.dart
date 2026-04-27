@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tea_agenda/pages/admin/escolas/gerenciar_escolas_page.dart';
+import 'package:tea_agenda/pages/admin/turmas/gerenciar_turmas_page.dart';
 import 'package:tea_agenda/pages/admin/usuarios/gerenciar_usuarios_page.dart';
 
 class AdminPage extends StatefulWidget {
@@ -43,7 +44,12 @@ class _AdminPageState extends State<AdminPage> {
               title: 'Gerenciar Turmas',
               iconData: Icons.people,
               onTap: () {
-                // TODO: Implementar navegação para gerenciamento de turmas
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarTurmasPage()
+                    ),
+                );
               },
             ),
             const SizedBox(height: 24),

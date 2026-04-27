@@ -16,11 +16,29 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertEscola(EscolasCompanion escola) => into(escolas).insert(escola);
   Stream<List<Escola>> watchEscolas() => select(escolas).watch();
 
-  // Inserir usuários e listar
+  // Listar usuários
   Stream<List<Usuario>> watchUsuarios() => select(usuarios).watch();
+
+  // Listar turmas
+  Stream<List<Turma>> watchTurmas() => select(turmas).watch();
+
+  // Função para aparecer apenas os professores, da escola vinculada a turma, quando for vincular o usuário a turma
+  Stream<List<Usuario>> watchProfessoresPorEscola(int? escolaId) {
+    if (escolaId == null) return const Stream.empty(); // Retorna vazio se for nulo
+
+    return (select(usuarios)
+      ..where((t) => 
+          t.usuCargo.equals(Cargos.professor.name) & 
+          t.usuEscola.equals(escolaId)
+      )
+    ).watch();
+  }
 
   // Função para retornar o nome da escola invés da ID
   Future<Escola> getEscolaById(int id) => (select(escolas)..where((t) => t.escId.equals(id))).getSingle();
+
+  // Função para retornar o nome do professor ao invés da ID
+  Future<Usuario> getUsuarioById(int id) => (select(usuarios)..where((t) => t.usuId.equals(id))).getSingle();
 
   @override
   int get schemaVersion => 1;
@@ -62,7 +80,7 @@ class Turmas extends Table {
   IntColumn get turAno => intEnum<Ano>()();                                   // Ano de escolaridade da turma
   IntColumn get turNumero => integer()();                                     // Número da turma
   IntColumn get turEscola => integer().references(Escolas, #escId)();         // ID da escola (chave estrangeira)
-  IntColumn get usuProfessorId => integer().references(Usuarios, #usuId)();   // ID do professor (chave estrangeira)
+  IntColumn get turProfessorId => integer().references(Usuarios, #usuId)();   // ID do professor (chave estrangeira)
 }
 
 // Tabela Escolas

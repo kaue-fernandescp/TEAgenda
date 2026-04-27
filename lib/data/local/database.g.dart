@@ -1079,12 +1079,12 @@ class $TurmasTable extends Turmas with TableInfo<$TurmasTable, Turma> {
       'REFERENCES escolas (esc_id)',
     ),
   );
-  static const VerificationMeta _usuProfessorIdMeta = const VerificationMeta(
-    'usuProfessorId',
+  static const VerificationMeta _turProfessorIdMeta = const VerificationMeta(
+    'turProfessorId',
   );
   @override
-  late final GeneratedColumn<int> usuProfessorId = GeneratedColumn<int>(
-    'usu_professor_id',
+  late final GeneratedColumn<int> turProfessorId = GeneratedColumn<int>(
+    'tur_professor_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1100,7 +1100,7 @@ class $TurmasTable extends Turmas with TableInfo<$TurmasTable, Turma> {
     turAno,
     turNumero,
     turEscola,
-    usuProfessorId,
+    turProfessorId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1136,16 +1136,16 @@ class $TurmasTable extends Turmas with TableInfo<$TurmasTable, Turma> {
     } else if (isInserting) {
       context.missing(_turEscolaMeta);
     }
-    if (data.containsKey('usu_professor_id')) {
+    if (data.containsKey('tur_professor_id')) {
       context.handle(
-        _usuProfessorIdMeta,
-        usuProfessorId.isAcceptableOrUnknown(
-          data['usu_professor_id']!,
-          _usuProfessorIdMeta,
+        _turProfessorIdMeta,
+        turProfessorId.isAcceptableOrUnknown(
+          data['tur_professor_id']!,
+          _turProfessorIdMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_usuProfessorIdMeta);
+      context.missing(_turProfessorIdMeta);
     }
     return context;
   }
@@ -1180,9 +1180,9 @@ class $TurmasTable extends Turmas with TableInfo<$TurmasTable, Turma> {
         DriftSqlType.int,
         data['${effectivePrefix}tur_escola'],
       )!,
-      usuProfessorId: attachedDatabase.typeMapping.read(
+      turProfessorId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}usu_professor_id'],
+        data['${effectivePrefix}tur_professor_id'],
       )!,
     );
   }
@@ -1204,14 +1204,14 @@ class Turma extends DataClass implements Insertable<Turma> {
   final Ano turAno;
   final int turNumero;
   final int turEscola;
-  final int usuProfessorId;
+  final int turProfessorId;
   const Turma({
     required this.turId,
     required this.turTurno,
     required this.turAno,
     required this.turNumero,
     required this.turEscola,
-    required this.usuProfessorId,
+    required this.turProfessorId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1229,7 +1229,7 @@ class Turma extends DataClass implements Insertable<Turma> {
     }
     map['tur_numero'] = Variable<int>(turNumero);
     map['tur_escola'] = Variable<int>(turEscola);
-    map['usu_professor_id'] = Variable<int>(usuProfessorId);
+    map['tur_professor_id'] = Variable<int>(turProfessorId);
     return map;
   }
 
@@ -1240,7 +1240,7 @@ class Turma extends DataClass implements Insertable<Turma> {
       turAno: Value(turAno),
       turNumero: Value(turNumero),
       turEscola: Value(turEscola),
-      usuProfessorId: Value(usuProfessorId),
+      turProfessorId: Value(turProfessorId),
     );
   }
 
@@ -1259,7 +1259,7 @@ class Turma extends DataClass implements Insertable<Turma> {
       ),
       turNumero: serializer.fromJson<int>(json['turNumero']),
       turEscola: serializer.fromJson<int>(json['turEscola']),
-      usuProfessorId: serializer.fromJson<int>(json['usuProfessorId']),
+      turProfessorId: serializer.fromJson<int>(json['turProfessorId']),
     );
   }
   @override
@@ -1275,7 +1275,7 @@ class Turma extends DataClass implements Insertable<Turma> {
       ),
       'turNumero': serializer.toJson<int>(turNumero),
       'turEscola': serializer.toJson<int>(turEscola),
-      'usuProfessorId': serializer.toJson<int>(usuProfessorId),
+      'turProfessorId': serializer.toJson<int>(turProfessorId),
     };
   }
 
@@ -1285,14 +1285,14 @@ class Turma extends DataClass implements Insertable<Turma> {
     Ano? turAno,
     int? turNumero,
     int? turEscola,
-    int? usuProfessorId,
+    int? turProfessorId,
   }) => Turma(
     turId: turId ?? this.turId,
     turTurno: turTurno ?? this.turTurno,
     turAno: turAno ?? this.turAno,
     turNumero: turNumero ?? this.turNumero,
     turEscola: turEscola ?? this.turEscola,
-    usuProfessorId: usuProfessorId ?? this.usuProfessorId,
+    turProfessorId: turProfessorId ?? this.turProfessorId,
   );
   Turma copyWithCompanion(TurmasCompanion data) {
     return Turma(
@@ -1301,9 +1301,9 @@ class Turma extends DataClass implements Insertable<Turma> {
       turAno: data.turAno.present ? data.turAno.value : this.turAno,
       turNumero: data.turNumero.present ? data.turNumero.value : this.turNumero,
       turEscola: data.turEscola.present ? data.turEscola.value : this.turEscola,
-      usuProfessorId: data.usuProfessorId.present
-          ? data.usuProfessorId.value
-          : this.usuProfessorId,
+      turProfessorId: data.turProfessorId.present
+          ? data.turProfessorId.value
+          : this.turProfessorId,
     );
   }
 
@@ -1315,7 +1315,7 @@ class Turma extends DataClass implements Insertable<Turma> {
           ..write('turAno: $turAno, ')
           ..write('turNumero: $turNumero, ')
           ..write('turEscola: $turEscola, ')
-          ..write('usuProfessorId: $usuProfessorId')
+          ..write('turProfessorId: $turProfessorId')
           ..write(')'))
         .toString();
   }
@@ -1327,7 +1327,7 @@ class Turma extends DataClass implements Insertable<Turma> {
     turAno,
     turNumero,
     turEscola,
-    usuProfessorId,
+    turProfessorId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1338,7 +1338,7 @@ class Turma extends DataClass implements Insertable<Turma> {
           other.turAno == this.turAno &&
           other.turNumero == this.turNumero &&
           other.turEscola == this.turEscola &&
-          other.usuProfessorId == this.usuProfessorId);
+          other.turProfessorId == this.turProfessorId);
 }
 
 class TurmasCompanion extends UpdateCompanion<Turma> {
@@ -1347,14 +1347,14 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
   final Value<Ano> turAno;
   final Value<int> turNumero;
   final Value<int> turEscola;
-  final Value<int> usuProfessorId;
+  final Value<int> turProfessorId;
   const TurmasCompanion({
     this.turId = const Value.absent(),
     this.turTurno = const Value.absent(),
     this.turAno = const Value.absent(),
     this.turNumero = const Value.absent(),
     this.turEscola = const Value.absent(),
-    this.usuProfessorId = const Value.absent(),
+    this.turProfessorId = const Value.absent(),
   });
   TurmasCompanion.insert({
     this.turId = const Value.absent(),
@@ -1362,19 +1362,19 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
     required Ano turAno,
     required int turNumero,
     required int turEscola,
-    required int usuProfessorId,
+    required int turProfessorId,
   }) : turTurno = Value(turTurno),
        turAno = Value(turAno),
        turNumero = Value(turNumero),
        turEscola = Value(turEscola),
-       usuProfessorId = Value(usuProfessorId);
+       turProfessorId = Value(turProfessorId);
   static Insertable<Turma> custom({
     Expression<int>? turId,
     Expression<String>? turTurno,
     Expression<int>? turAno,
     Expression<int>? turNumero,
     Expression<int>? turEscola,
-    Expression<int>? usuProfessorId,
+    Expression<int>? turProfessorId,
   }) {
     return RawValuesInsertable({
       if (turId != null) 'tur_id': turId,
@@ -1382,7 +1382,7 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
       if (turAno != null) 'tur_ano': turAno,
       if (turNumero != null) 'tur_numero': turNumero,
       if (turEscola != null) 'tur_escola': turEscola,
-      if (usuProfessorId != null) 'usu_professor_id': usuProfessorId,
+      if (turProfessorId != null) 'tur_professor_id': turProfessorId,
     });
   }
 
@@ -1392,7 +1392,7 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
     Value<Ano>? turAno,
     Value<int>? turNumero,
     Value<int>? turEscola,
-    Value<int>? usuProfessorId,
+    Value<int>? turProfessorId,
   }) {
     return TurmasCompanion(
       turId: turId ?? this.turId,
@@ -1400,7 +1400,7 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
       turAno: turAno ?? this.turAno,
       turNumero: turNumero ?? this.turNumero,
       turEscola: turEscola ?? this.turEscola,
-      usuProfessorId: usuProfessorId ?? this.usuProfessorId,
+      turProfessorId: turProfessorId ?? this.turProfessorId,
     );
   }
 
@@ -1426,8 +1426,8 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
     if (turEscola.present) {
       map['tur_escola'] = Variable<int>(turEscola.value);
     }
-    if (usuProfessorId.present) {
-      map['usu_professor_id'] = Variable<int>(usuProfessorId.value);
+    if (turProfessorId.present) {
+      map['tur_professor_id'] = Variable<int>(turProfessorId.value);
     }
     return map;
   }
@@ -1440,7 +1440,7 @@ class TurmasCompanion extends UpdateCompanion<Turma> {
           ..write('turAno: $turAno, ')
           ..write('turNumero: $turNumero, ')
           ..write('turEscola: $turEscola, ')
-          ..write('usuProfessorId: $usuProfessorId')
+          ..write('turProfessorId: $turProfessorId')
           ..write(')'))
         .toString();
   }
@@ -2910,13 +2910,13 @@ final class $$UsuariosTableReferences
     db.turmas,
     aliasName: $_aliasNameGenerator(
       db.usuarios.usuId,
-      db.turmas.usuProfessorId,
+      db.turmas.turProfessorId,
     ),
   );
 
   $$TurmasTableProcessedTableManager get turmasRefs {
     final manager = $$TurmasTableTableManager($_db, $_db.turmas).filter(
-      (f) => f.usuProfessorId.usuId.sqlEquals($_itemColumn<int>('usu_id')!),
+      (f) => f.turProfessorId.usuId.sqlEquals($_itemColumn<int>('usu_id')!),
     );
 
     final cache = $_typedResult.readTableOrNull(_turmasRefsTable($_db));
@@ -3037,7 +3037,7 @@ class $$UsuariosTableFilterComposer
       composer: this,
       getCurrentColumn: (t) => t.usuId,
       referencedTable: $db.turmas,
-      getReferencedColumn: (t) => t.usuProfessorId,
+      getReferencedColumn: (t) => t.turProfessorId,
       builder:
           (
             joinBuilder, {
@@ -3236,7 +3236,7 @@ class $$UsuariosTableAnnotationComposer
       composer: this,
       getCurrentColumn: (t) => t.usuId,
       referencedTable: $db.turmas,
-      getReferencedColumn: (t) => t.usuProfessorId,
+      getReferencedColumn: (t) => t.turProfessorId,
       builder:
           (
             joinBuilder, {
@@ -3449,7 +3449,7 @@ class $$UsuariosTableTableManager
                               ).turmasRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.usuProfessorId == item.usuId,
+                                (e) => e.turProfessorId == item.usuId,
                               ),
                           typedResults: items,
                         ),
@@ -3529,7 +3529,7 @@ typedef $$TurmasTableCreateCompanionBuilder =
       required Ano turAno,
       required int turNumero,
       required int turEscola,
-      required int usuProfessorId,
+      required int turProfessorId,
     });
 typedef $$TurmasTableUpdateCompanionBuilder =
     TurmasCompanion Function({
@@ -3538,7 +3538,7 @@ typedef $$TurmasTableUpdateCompanionBuilder =
       Value<Ano> turAno,
       Value<int> turNumero,
       Value<int> turEscola,
-      Value<int> usuProfessorId,
+      Value<int> turProfessorId,
     });
 
 final class $$TurmasTableReferences
@@ -3562,19 +3562,19 @@ final class $$TurmasTableReferences
     );
   }
 
-  static $UsuariosTable _usuProfessorIdTable(_$AppDatabase db) =>
+  static $UsuariosTable _turProfessorIdTable(_$AppDatabase db) =>
       db.usuarios.createAlias(
-        $_aliasNameGenerator(db.turmas.usuProfessorId, db.usuarios.usuId),
+        $_aliasNameGenerator(db.turmas.turProfessorId, db.usuarios.usuId),
       );
 
-  $$UsuariosTableProcessedTableManager get usuProfessorId {
-    final $_column = $_itemColumn<int>('usu_professor_id')!;
+  $$UsuariosTableProcessedTableManager get turProfessorId {
+    final $_column = $_itemColumn<int>('tur_professor_id')!;
 
     final manager = $$UsuariosTableTableManager(
       $_db,
       $_db.usuarios,
     ).filter((f) => f.usuId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_usuProfessorIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_turProfessorIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -3655,10 +3655,10 @@ class $$TurmasTableFilterComposer
     return composer;
   }
 
-  $$UsuariosTableFilterComposer get usuProfessorId {
+  $$UsuariosTableFilterComposer get turProfessorId {
     final $$UsuariosTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuProfessorId,
+      getCurrentColumn: (t) => t.turProfessorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -3756,10 +3756,10 @@ class $$TurmasTableOrderingComposer
     return composer;
   }
 
-  $$UsuariosTableOrderingComposer get usuProfessorId {
+  $$UsuariosTableOrderingComposer get turProfessorId {
     final $$UsuariosTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuProfessorId,
+      getCurrentColumn: (t) => t.turProfessorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -3824,10 +3824,10 @@ class $$TurmasTableAnnotationComposer
     return composer;
   }
 
-  $$UsuariosTableAnnotationComposer get usuProfessorId {
+  $$UsuariosTableAnnotationComposer get turProfessorId {
     final $$UsuariosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuProfessorId,
+      getCurrentColumn: (t) => t.turProfessorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -3888,7 +3888,7 @@ class $$TurmasTableTableManager
           Turma,
           PrefetchHooks Function({
             bool turEscola,
-            bool usuProfessorId,
+            bool turProfessorId,
             bool alunosRefs,
           })
         > {
@@ -3910,14 +3910,14 @@ class $$TurmasTableTableManager
                 Value<Ano> turAno = const Value.absent(),
                 Value<int> turNumero = const Value.absent(),
                 Value<int> turEscola = const Value.absent(),
-                Value<int> usuProfessorId = const Value.absent(),
+                Value<int> turProfessorId = const Value.absent(),
               }) => TurmasCompanion(
                 turId: turId,
                 turTurno: turTurno,
                 turAno: turAno,
                 turNumero: turNumero,
                 turEscola: turEscola,
-                usuProfessorId: usuProfessorId,
+                turProfessorId: turProfessorId,
               ),
           createCompanionCallback:
               ({
@@ -3926,14 +3926,14 @@ class $$TurmasTableTableManager
                 required Ano turAno,
                 required int turNumero,
                 required int turEscola,
-                required int usuProfessorId,
+                required int turProfessorId,
               }) => TurmasCompanion.insert(
                 turId: turId,
                 turTurno: turTurno,
                 turAno: turAno,
                 turNumero: turNumero,
                 turEscola: turEscola,
-                usuProfessorId: usuProfessorId,
+                turProfessorId: turProfessorId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -3944,7 +3944,7 @@ class $$TurmasTableTableManager
           prefetchHooksCallback:
               ({
                 turEscola = false,
-                usuProfessorId = false,
+                turProfessorId = false,
                 alunosRefs = false,
               }) {
                 return PrefetchHooks(
@@ -3979,15 +3979,15 @@ class $$TurmasTableTableManager
                                   )
                                   as T;
                         }
-                        if (usuProfessorId) {
+                        if (turProfessorId) {
                           state =
                               state.withJoin(
                                     currentTable: table,
-                                    currentColumn: table.usuProfessorId,
+                                    currentColumn: table.turProfessorId,
                                     referencedTable: $$TurmasTableReferences
-                                        ._usuProfessorIdTable(db),
+                                        ._turProfessorIdTable(db),
                                     referencedColumn: $$TurmasTableReferences
-                                        ._usuProfessorIdTable(db)
+                                        ._turProfessorIdTable(db)
                                         .usuId,
                                   )
                                   as T;
@@ -4032,7 +4032,7 @@ typedef $$TurmasTableProcessedTableManager =
       Turma,
       PrefetchHooks Function({
         bool turEscola,
-        bool usuProfessorId,
+        bool turProfessorId,
         bool alunosRefs,
       })
     >;

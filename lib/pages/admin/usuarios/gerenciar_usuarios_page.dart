@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tea_agenda/data/local/database.dart';
-import 'package:tea_agenda/pages/admin/usuarios/adicionar_usuarios_page.dart';
-import 'package:tea_agenda/pages/admin/usuarios/detalhes_usuarios_page.dart';
+import 'package:tea_agenda/pages/admin/usuarios/adicionar_usuario_page.dart';
+import 'package:tea_agenda/pages/admin/usuarios/detalhes_usuario_page.dart';
 
 class GerenciarUsuariosPage extends StatefulWidget {
     const GerenciarUsuariosPage({super.key});
@@ -47,7 +47,7 @@ class _GerenciarUsuariosPageState extends State<GerenciarUsuariosPage> {
                             ),
                         ),
                     ),
-                    // Lista de Escolas
+                    // Lista de Usuários
                     Expanded(
                         child: StreamBuilder<List<Usuario>>(
                             stream: database.watchUsuarios(),
@@ -86,7 +86,7 @@ class _GerenciarUsuariosPageState extends State<GerenciarUsuariosPage> {
                                             child: ListTile(
                                                 leading: const Icon(Icons.person, color: Colors.blue),
                                                 title: Text(usuario.usuNome),
-                                                subtitle: Text("${usuario.usuCargo}"),
+                                                subtitle: Text(usuario.usuCargo.name[0].toUpperCase() + usuario.usuCargo.name.substring(1)),
                                                 trailing: IconButton(
                                                     icon: const Icon(Icons.edit, size: 20),
                                                     onPressed: () {
