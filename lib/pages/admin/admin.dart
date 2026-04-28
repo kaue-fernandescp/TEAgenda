@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tea_agenda/pages/admin/escolas/gerenciar_escolas_page.dart';
 import 'package:tea_agenda/pages/admin/turmas/gerenciar_turmas_page.dart';
 import 'package:tea_agenda/pages/admin/usuarios/gerenciar_usuarios_page.dart';
+import 'package:tea_agenda/pages/admin/alunos/gerenciar_alunos_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -58,7 +59,12 @@ class _AdminPageState extends State<AdminPage> {
               title: 'Gerenciar Alunos',
               iconData: Icons.people,
               onTap: () {
-                // TODO: Implementar navegação para gerenciamento de alunos
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarAlunosPage()
+                    ),
+                );
               },
             ),
             const SizedBox(height: 24),
@@ -73,22 +79,6 @@ class _AdminPageState extends State<AdminPage> {
                     builder: (context) => const GerenciarUsuariosPage()
                     ),
                 );
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildAdminCard(
-              title: 'Gerenciar Horários',
-              iconData: Icons.schedule,
-              onTap: () {
-                // TODO: Implementar navegação para gerenciamento de horários
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildAdminCard(
-              title: 'Configurações',
-              iconData: Icons.settings,
-              onTap: () {
-                // TODO: Implementar navegação para configurações
               },
             ),
           ],

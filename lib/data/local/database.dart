@@ -22,9 +22,12 @@ class AppDatabase extends _$AppDatabase {
   // Listar turmas
   Stream<List<Turma>> watchTurmas() => select(turmas).watch();
 
-  // Função para aparecer apenas os professores, da escola vinculada a turma, quando for vincular o usuário a turma
+  // Listar alunos
+  Stream<List<Aluno>> watchAlunos() => select(alunos).watch();
+
+  // Função para retornar apenas os professores, da escola vinculada a turma, quando for vincular o usuário a turma
   Stream<List<Usuario>> watchProfessoresPorEscola(int? escolaId) {
-    if (escolaId == null) return const Stream.empty(); // Retorna vazio se for nulo
+    if (escolaId == null) return const Stream.empty();
 
     return (select(usuarios)
       ..where((t) => 
@@ -34,11 +37,33 @@ class AppDatabase extends _$AppDatabase {
     ).watch();
   }
 
+  // Função para retornar apenas os cuidadores, da escola vinculada ao aluno, quando for vincular o cuidador ao aluno
+  Stream<List<Usuario>> watchCuidadoresPorEscola(int? escolaId) {
+    if (escolaId == null) return const Stream.empty();
+
+    return (select(usuarios)
+      ..where((t) => 
+          t.usuCargo.equals(Cargos.cuidador.name) & 
+          t.usuEscola.equals(escolaId)
+      )
+    ).watch();
+  }
+
+  // Função para retornar apenas as turmas, da escola vinculada ao aluno, quando for vincular o aluno a turma
+  Stream<List<Turma>> watchTurmasPorEscola(int? escolaId) {
+    if (escolaId == null) return const Stream.empty();
+
+    return (select(turmas)..where((t) => t.turEscola.equals(escolaId))).watch();
+  }
+
   // Função para retornar o nome da escola invés da ID
   Future<Escola> getEscolaById(int id) => (select(escolas)..where((t) => t.escId.equals(id))).getSingle();
 
   // Função para retornar o nome do professor ao invés da ID
   Future<Usuario> getUsuarioById(int id) => (select(usuarios)..where((t) => t.usuId.equals(id))).getSingle();
+
+  // Função para retornar o número da turma ao invés da ID
+  Future<Turma> getTurmaById(int id) => (select(turmas)..where((t) => t.turId.equals(id))).getSingle();
 
   @override
   int get schemaVersion => 1;
@@ -69,8 +94,9 @@ class Alunos extends Table {
   TextColumn get aluNome => text().withLength(min: 1, max: 100)();            // Nome completo do aluno
   TextColumn get aluCFP => text().withLength(min:1, max: 14)();               // CPF do aluno
   DateTimeColumn get aluDtNascimento => dateTime()();                         // Data de nascimento do aluno
-  IntColumn get turId => integer().references(Turmas, #turId)();              // ID da turma (chave estrangeira)
-  IntColumn get usuCuidadorId => integer().references(Usuarios, #usuId)();    // ID do cuidador (chave estrangeira)
+  IntColumn get aluEscolaId => integer().references(Escolas, #escId)();       // Id da escola (chave estrangeira)
+  IntColumn get aluTurmaId => integer().references(Turmas, #turId)();         // ID da turma (chave estrangeira)
+  IntColumn get aluCuidadorId => integer().references(Usuarios, #usuId)();    // ID do cuidador (chave estrangeira)
 }
 
 // Tabela Turmas

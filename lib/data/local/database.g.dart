@@ -1504,10 +1504,26 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       );
-  static const VerificationMeta _turIdMeta = const VerificationMeta('turId');
+  static const VerificationMeta _aluEscolaIdMeta = const VerificationMeta(
+    'aluEscolaId',
+  );
   @override
-  late final GeneratedColumn<int> turId = GeneratedColumn<int>(
-    'tur_id',
+  late final GeneratedColumn<int> aluEscolaId = GeneratedColumn<int>(
+    'alu_escola_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES escolas (esc_id)',
+    ),
+  );
+  static const VerificationMeta _aluTurmaIdMeta = const VerificationMeta(
+    'aluTurmaId',
+  );
+  @override
+  late final GeneratedColumn<int> aluTurmaId = GeneratedColumn<int>(
+    'alu_turma_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1516,12 +1532,12 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
       'REFERENCES turmas (tur_id)',
     ),
   );
-  static const VerificationMeta _usuCuidadorIdMeta = const VerificationMeta(
-    'usuCuidadorId',
+  static const VerificationMeta _aluCuidadorIdMeta = const VerificationMeta(
+    'aluCuidadorId',
   );
   @override
-  late final GeneratedColumn<int> usuCuidadorId = GeneratedColumn<int>(
-    'usu_cuidador_id',
+  late final GeneratedColumn<int> aluCuidadorId = GeneratedColumn<int>(
+    'alu_cuidador_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1536,8 +1552,9 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
     aluNome,
     aluCFP,
     aluDtNascimento,
-    turId,
-    usuCuidadorId,
+    aluEscolaId,
+    aluTurmaId,
+    aluCuidadorId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1584,24 +1601,38 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
     } else if (isInserting) {
       context.missing(_aluDtNascimentoMeta);
     }
-    if (data.containsKey('tur_id')) {
+    if (data.containsKey('alu_escola_id')) {
       context.handle(
-        _turIdMeta,
-        turId.isAcceptableOrUnknown(data['tur_id']!, _turIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_turIdMeta);
-    }
-    if (data.containsKey('usu_cuidador_id')) {
-      context.handle(
-        _usuCuidadorIdMeta,
-        usuCuidadorId.isAcceptableOrUnknown(
-          data['usu_cuidador_id']!,
-          _usuCuidadorIdMeta,
+        _aluEscolaIdMeta,
+        aluEscolaId.isAcceptableOrUnknown(
+          data['alu_escola_id']!,
+          _aluEscolaIdMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_usuCuidadorIdMeta);
+      context.missing(_aluEscolaIdMeta);
+    }
+    if (data.containsKey('alu_turma_id')) {
+      context.handle(
+        _aluTurmaIdMeta,
+        aluTurmaId.isAcceptableOrUnknown(
+          data['alu_turma_id']!,
+          _aluTurmaIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_aluTurmaIdMeta);
+    }
+    if (data.containsKey('alu_cuidador_id')) {
+      context.handle(
+        _aluCuidadorIdMeta,
+        aluCuidadorId.isAcceptableOrUnknown(
+          data['alu_cuidador_id']!,
+          _aluCuidadorIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_aluCuidadorIdMeta);
     }
     return context;
   }
@@ -1628,13 +1659,17 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}alu_dt_nascimento'],
       )!,
-      turId: attachedDatabase.typeMapping.read(
+      aluEscolaId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}tur_id'],
+        data['${effectivePrefix}alu_escola_id'],
       )!,
-      usuCuidadorId: attachedDatabase.typeMapping.read(
+      aluTurmaId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}usu_cuidador_id'],
+        data['${effectivePrefix}alu_turma_id'],
+      )!,
+      aluCuidadorId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}alu_cuidador_id'],
       )!,
     );
   }
@@ -1650,15 +1685,17 @@ class Aluno extends DataClass implements Insertable<Aluno> {
   final String aluNome;
   final String aluCFP;
   final DateTime aluDtNascimento;
-  final int turId;
-  final int usuCuidadorId;
+  final int aluEscolaId;
+  final int aluTurmaId;
+  final int aluCuidadorId;
   const Aluno({
     required this.aluId,
     required this.aluNome,
     required this.aluCFP,
     required this.aluDtNascimento,
-    required this.turId,
-    required this.usuCuidadorId,
+    required this.aluEscolaId,
+    required this.aluTurmaId,
+    required this.aluCuidadorId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1667,8 +1704,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     map['alu_nome'] = Variable<String>(aluNome);
     map['alu_c_f_p'] = Variable<String>(aluCFP);
     map['alu_dt_nascimento'] = Variable<DateTime>(aluDtNascimento);
-    map['tur_id'] = Variable<int>(turId);
-    map['usu_cuidador_id'] = Variable<int>(usuCuidadorId);
+    map['alu_escola_id'] = Variable<int>(aluEscolaId);
+    map['alu_turma_id'] = Variable<int>(aluTurmaId);
+    map['alu_cuidador_id'] = Variable<int>(aluCuidadorId);
     return map;
   }
 
@@ -1678,8 +1716,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       aluNome: Value(aluNome),
       aluCFP: Value(aluCFP),
       aluDtNascimento: Value(aluDtNascimento),
-      turId: Value(turId),
-      usuCuidadorId: Value(usuCuidadorId),
+      aluEscolaId: Value(aluEscolaId),
+      aluTurmaId: Value(aluTurmaId),
+      aluCuidadorId: Value(aluCuidadorId),
     );
   }
 
@@ -1693,8 +1732,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       aluNome: serializer.fromJson<String>(json['aluNome']),
       aluCFP: serializer.fromJson<String>(json['aluCFP']),
       aluDtNascimento: serializer.fromJson<DateTime>(json['aluDtNascimento']),
-      turId: serializer.fromJson<int>(json['turId']),
-      usuCuidadorId: serializer.fromJson<int>(json['usuCuidadorId']),
+      aluEscolaId: serializer.fromJson<int>(json['aluEscolaId']),
+      aluTurmaId: serializer.fromJson<int>(json['aluTurmaId']),
+      aluCuidadorId: serializer.fromJson<int>(json['aluCuidadorId']),
     );
   }
   @override
@@ -1705,8 +1745,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       'aluNome': serializer.toJson<String>(aluNome),
       'aluCFP': serializer.toJson<String>(aluCFP),
       'aluDtNascimento': serializer.toJson<DateTime>(aluDtNascimento),
-      'turId': serializer.toJson<int>(turId),
-      'usuCuidadorId': serializer.toJson<int>(usuCuidadorId),
+      'aluEscolaId': serializer.toJson<int>(aluEscolaId),
+      'aluTurmaId': serializer.toJson<int>(aluTurmaId),
+      'aluCuidadorId': serializer.toJson<int>(aluCuidadorId),
     };
   }
 
@@ -1715,15 +1756,17 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     String? aluNome,
     String? aluCFP,
     DateTime? aluDtNascimento,
-    int? turId,
-    int? usuCuidadorId,
+    int? aluEscolaId,
+    int? aluTurmaId,
+    int? aluCuidadorId,
   }) => Aluno(
     aluId: aluId ?? this.aluId,
     aluNome: aluNome ?? this.aluNome,
     aluCFP: aluCFP ?? this.aluCFP,
     aluDtNascimento: aluDtNascimento ?? this.aluDtNascimento,
-    turId: turId ?? this.turId,
-    usuCuidadorId: usuCuidadorId ?? this.usuCuidadorId,
+    aluEscolaId: aluEscolaId ?? this.aluEscolaId,
+    aluTurmaId: aluTurmaId ?? this.aluTurmaId,
+    aluCuidadorId: aluCuidadorId ?? this.aluCuidadorId,
   );
   Aluno copyWithCompanion(AlunosCompanion data) {
     return Aluno(
@@ -1733,10 +1776,15 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       aluDtNascimento: data.aluDtNascimento.present
           ? data.aluDtNascimento.value
           : this.aluDtNascimento,
-      turId: data.turId.present ? data.turId.value : this.turId,
-      usuCuidadorId: data.usuCuidadorId.present
-          ? data.usuCuidadorId.value
-          : this.usuCuidadorId,
+      aluEscolaId: data.aluEscolaId.present
+          ? data.aluEscolaId.value
+          : this.aluEscolaId,
+      aluTurmaId: data.aluTurmaId.present
+          ? data.aluTurmaId.value
+          : this.aluTurmaId,
+      aluCuidadorId: data.aluCuidadorId.present
+          ? data.aluCuidadorId.value
+          : this.aluCuidadorId,
     );
   }
 
@@ -1747,8 +1795,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
           ..write('aluNome: $aluNome, ')
           ..write('aluCFP: $aluCFP, ')
           ..write('aluDtNascimento: $aluDtNascimento, ')
-          ..write('turId: $turId, ')
-          ..write('usuCuidadorId: $usuCuidadorId')
+          ..write('aluEscolaId: $aluEscolaId, ')
+          ..write('aluTurmaId: $aluTurmaId, ')
+          ..write('aluCuidadorId: $aluCuidadorId')
           ..write(')'))
         .toString();
   }
@@ -1759,8 +1808,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     aluNome,
     aluCFP,
     aluDtNascimento,
-    turId,
-    usuCuidadorId,
+    aluEscolaId,
+    aluTurmaId,
+    aluCuidadorId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1770,8 +1820,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
           other.aluNome == this.aluNome &&
           other.aluCFP == this.aluCFP &&
           other.aluDtNascimento == this.aluDtNascimento &&
-          other.turId == this.turId &&
-          other.usuCuidadorId == this.usuCuidadorId);
+          other.aluEscolaId == this.aluEscolaId &&
+          other.aluTurmaId == this.aluTurmaId &&
+          other.aluCuidadorId == this.aluCuidadorId);
 }
 
 class AlunosCompanion extends UpdateCompanion<Aluno> {
@@ -1779,43 +1830,49 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
   final Value<String> aluNome;
   final Value<String> aluCFP;
   final Value<DateTime> aluDtNascimento;
-  final Value<int> turId;
-  final Value<int> usuCuidadorId;
+  final Value<int> aluEscolaId;
+  final Value<int> aluTurmaId;
+  final Value<int> aluCuidadorId;
   const AlunosCompanion({
     this.aluId = const Value.absent(),
     this.aluNome = const Value.absent(),
     this.aluCFP = const Value.absent(),
     this.aluDtNascimento = const Value.absent(),
-    this.turId = const Value.absent(),
-    this.usuCuidadorId = const Value.absent(),
+    this.aluEscolaId = const Value.absent(),
+    this.aluTurmaId = const Value.absent(),
+    this.aluCuidadorId = const Value.absent(),
   });
   AlunosCompanion.insert({
     this.aluId = const Value.absent(),
     required String aluNome,
     required String aluCFP,
     required DateTime aluDtNascimento,
-    required int turId,
-    required int usuCuidadorId,
+    required int aluEscolaId,
+    required int aluTurmaId,
+    required int aluCuidadorId,
   }) : aluNome = Value(aluNome),
        aluCFP = Value(aluCFP),
        aluDtNascimento = Value(aluDtNascimento),
-       turId = Value(turId),
-       usuCuidadorId = Value(usuCuidadorId);
+       aluEscolaId = Value(aluEscolaId),
+       aluTurmaId = Value(aluTurmaId),
+       aluCuidadorId = Value(aluCuidadorId);
   static Insertable<Aluno> custom({
     Expression<int>? aluId,
     Expression<String>? aluNome,
     Expression<String>? aluCFP,
     Expression<DateTime>? aluDtNascimento,
-    Expression<int>? turId,
-    Expression<int>? usuCuidadorId,
+    Expression<int>? aluEscolaId,
+    Expression<int>? aluTurmaId,
+    Expression<int>? aluCuidadorId,
   }) {
     return RawValuesInsertable({
       if (aluId != null) 'alu_id': aluId,
       if (aluNome != null) 'alu_nome': aluNome,
       if (aluCFP != null) 'alu_c_f_p': aluCFP,
       if (aluDtNascimento != null) 'alu_dt_nascimento': aluDtNascimento,
-      if (turId != null) 'tur_id': turId,
-      if (usuCuidadorId != null) 'usu_cuidador_id': usuCuidadorId,
+      if (aluEscolaId != null) 'alu_escola_id': aluEscolaId,
+      if (aluTurmaId != null) 'alu_turma_id': aluTurmaId,
+      if (aluCuidadorId != null) 'alu_cuidador_id': aluCuidadorId,
     });
   }
 
@@ -1824,16 +1881,18 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     Value<String>? aluNome,
     Value<String>? aluCFP,
     Value<DateTime>? aluDtNascimento,
-    Value<int>? turId,
-    Value<int>? usuCuidadorId,
+    Value<int>? aluEscolaId,
+    Value<int>? aluTurmaId,
+    Value<int>? aluCuidadorId,
   }) {
     return AlunosCompanion(
       aluId: aluId ?? this.aluId,
       aluNome: aluNome ?? this.aluNome,
       aluCFP: aluCFP ?? this.aluCFP,
       aluDtNascimento: aluDtNascimento ?? this.aluDtNascimento,
-      turId: turId ?? this.turId,
-      usuCuidadorId: usuCuidadorId ?? this.usuCuidadorId,
+      aluEscolaId: aluEscolaId ?? this.aluEscolaId,
+      aluTurmaId: aluTurmaId ?? this.aluTurmaId,
+      aluCuidadorId: aluCuidadorId ?? this.aluCuidadorId,
     );
   }
 
@@ -1852,11 +1911,14 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     if (aluDtNascimento.present) {
       map['alu_dt_nascimento'] = Variable<DateTime>(aluDtNascimento.value);
     }
-    if (turId.present) {
-      map['tur_id'] = Variable<int>(turId.value);
+    if (aluEscolaId.present) {
+      map['alu_escola_id'] = Variable<int>(aluEscolaId.value);
     }
-    if (usuCuidadorId.present) {
-      map['usu_cuidador_id'] = Variable<int>(usuCuidadorId.value);
+    if (aluTurmaId.present) {
+      map['alu_turma_id'] = Variable<int>(aluTurmaId.value);
+    }
+    if (aluCuidadorId.present) {
+      map['alu_cuidador_id'] = Variable<int>(aluCuidadorId.value);
     }
     return map;
   }
@@ -1868,8 +1930,9 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
           ..write('aluNome: $aluNome, ')
           ..write('aluCFP: $aluCFP, ')
           ..write('aluDtNascimento: $aluDtNascimento, ')
-          ..write('turId: $turId, ')
-          ..write('usuCuidadorId: $usuCuidadorId')
+          ..write('aluEscolaId: $aluEscolaId, ')
+          ..write('aluTurmaId: $aluTurmaId, ')
+          ..write('aluCuidadorId: $aluCuidadorId')
           ..write(')'))
         .toString();
   }
@@ -2505,6 +2568,24 @@ final class $$EscolasTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$AlunosTable, List<Aluno>> _alunosRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.alunos,
+    aliasName: $_aliasNameGenerator(db.escolas.escId, db.alunos.aluEscolaId),
+  );
+
+  $$AlunosTableProcessedTableManager get alunosRefs {
+    final manager = $$AlunosTableTableManager($_db, $_db.alunos).filter(
+      (f) => f.aluEscolaId.escId.sqlEquals($_itemColumn<int>('esc_id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_alunosRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$EscolasTableFilterComposer
@@ -2592,6 +2673,31 @@ class $$EscolasTableFilterComposer
           }) => $$TurmasTableFilterComposer(
             $db: $db,
             $table: $db.turmas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> alunosRefs(
+    Expression<bool> Function($$AlunosTableFilterComposer f) f,
+  ) {
+    final $$AlunosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.escId,
+      referencedTable: $db.alunos,
+      getReferencedColumn: (t) => t.aluEscolaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AlunosTableFilterComposer(
+            $db: $db,
+            $table: $db.alunos,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2728,6 +2834,31 @@ class $$EscolasTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> alunosRefs<T extends Object>(
+    Expression<T> Function($$AlunosTableAnnotationComposer a) f,
+  ) {
+    final $$AlunosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.escId,
+      referencedTable: $db.alunos,
+      getReferencedColumn: (t) => t.aluEscolaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AlunosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.alunos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$EscolasTableTableManager
@@ -2743,7 +2874,11 @@ class $$EscolasTableTableManager
           $$EscolasTableUpdateCompanionBuilder,
           (Escola, $$EscolasTableReferences),
           Escola,
-          PrefetchHooks Function({bool usuariosRefs, bool turmasRefs})
+          PrefetchHooks Function({
+            bool usuariosRefs,
+            bool turmasRefs,
+            bool alunosRefs,
+          })
         > {
   $$EscolasTableTableManager(_$AppDatabase db, $EscolasTable table)
     : super(
@@ -2800,46 +2935,77 @@ class $$EscolasTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({usuariosRefs = false, turmasRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (usuariosRefs) db.usuarios,
-                if (turmasRefs) db.turmas,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (usuariosRefs)
-                    await $_getPrefetchedData<Escola, $EscolasTable, Usuario>(
-                      currentTable: table,
-                      referencedTable: $$EscolasTableReferences
-                          ._usuariosRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$EscolasTableReferences(db, table, p0).usuariosRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.usuEscola == item.escId,
-                          ),
-                      typedResults: items,
-                    ),
-                  if (turmasRefs)
-                    await $_getPrefetchedData<Escola, $EscolasTable, Turma>(
-                      currentTable: table,
-                      referencedTable: $$EscolasTableReferences
-                          ._turmasRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$EscolasTableReferences(db, table, p0).turmasRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.turEscola == item.escId,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({usuariosRefs = false, turmasRefs = false, alunosRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (usuariosRefs) db.usuarios,
+                    if (turmasRefs) db.turmas,
+                    if (alunosRefs) db.alunos,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (usuariosRefs)
+                        await $_getPrefetchedData<
+                          Escola,
+                          $EscolasTable,
+                          Usuario
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EscolasTableReferences
+                              ._usuariosRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EscolasTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).usuariosRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.usuEscola == item.escId,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (turmasRefs)
+                        await $_getPrefetchedData<Escola, $EscolasTable, Turma>(
+                          currentTable: table,
+                          referencedTable: $$EscolasTableReferences
+                              ._turmasRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EscolasTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).turmasRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.turEscola == item.escId,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (alunosRefs)
+                        await $_getPrefetchedData<Escola, $EscolasTable, Aluno>(
+                          currentTable: table,
+                          referencedTable: $$EscolasTableReferences
+                              ._alunosRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EscolasTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).alunosRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.aluEscolaId == item.escId,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2856,7 +3022,11 @@ typedef $$EscolasTableProcessedTableManager =
       $$EscolasTableUpdateCompanionBuilder,
       (Escola, $$EscolasTableReferences),
       Escola,
-      PrefetchHooks Function({bool usuariosRefs, bool turmasRefs})
+      PrefetchHooks Function({
+        bool usuariosRefs,
+        bool turmasRefs,
+        bool alunosRefs,
+      })
     >;
 typedef $$UsuariosTableCreateCompanionBuilder =
     UsuariosCompanion Function({
@@ -2929,12 +3099,12 @@ final class $$UsuariosTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.alunos,
-    aliasName: $_aliasNameGenerator(db.usuarios.usuId, db.alunos.usuCuidadorId),
+    aliasName: $_aliasNameGenerator(db.usuarios.usuId, db.alunos.aluCuidadorId),
   );
 
   $$AlunosTableProcessedTableManager get alunosRefs {
     final manager = $$AlunosTableTableManager($_db, $_db.alunos).filter(
-      (f) => f.usuCuidadorId.usuId.sqlEquals($_itemColumn<int>('usu_id')!),
+      (f) => f.aluCuidadorId.usuId.sqlEquals($_itemColumn<int>('usu_id')!),
     );
 
     final cache = $_typedResult.readTableOrNull(_alunosRefsTable($_db));
@@ -3062,7 +3232,7 @@ class $$UsuariosTableFilterComposer
       composer: this,
       getCurrentColumn: (t) => t.usuId,
       referencedTable: $db.alunos,
-      getReferencedColumn: (t) => t.usuCuidadorId,
+      getReferencedColumn: (t) => t.aluCuidadorId,
       builder:
           (
             joinBuilder, {
@@ -3261,7 +3431,7 @@ class $$UsuariosTableAnnotationComposer
       composer: this,
       getCurrentColumn: (t) => t.usuId,
       referencedTable: $db.alunos,
-      getReferencedColumn: (t) => t.usuCuidadorId,
+      getReferencedColumn: (t) => t.aluCuidadorId,
       builder:
           (
             joinBuilder, {
@@ -3470,7 +3640,7 @@ class $$UsuariosTableTableManager
                               ).alunosRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.usuCuidadorId == item.usuId,
+                                (e) => e.aluCuidadorId == item.usuId,
                               ),
                           typedResults: items,
                         ),
@@ -3585,14 +3755,14 @@ final class $$TurmasTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.alunos,
-    aliasName: $_aliasNameGenerator(db.turmas.turId, db.alunos.turId),
+    aliasName: $_aliasNameGenerator(db.turmas.turId, db.alunos.aluTurmaId),
   );
 
   $$AlunosTableProcessedTableManager get alunosRefs {
     final manager = $$AlunosTableTableManager(
       $_db,
       $_db.alunos,
-    ).filter((f) => f.turId.turId.sqlEquals($_itemColumn<int>('tur_id')!));
+    ).filter((f) => f.aluTurmaId.turId.sqlEquals($_itemColumn<int>('tur_id')!));
 
     final cache = $_typedResult.readTableOrNull(_alunosRefsTable($_db));
     return ProcessedTableManager(
@@ -3685,7 +3855,7 @@ class $$TurmasTableFilterComposer
       composer: this,
       getCurrentColumn: (t) => t.turId,
       referencedTable: $db.alunos,
-      getReferencedColumn: (t) => t.turId,
+      getReferencedColumn: (t) => t.aluTurmaId,
       builder:
           (
             joinBuilder, {
@@ -3854,7 +4024,7 @@ class $$TurmasTableAnnotationComposer
       composer: this,
       getCurrentColumn: (t) => t.turId,
       referencedTable: $db.alunos,
-      getReferencedColumn: (t) => t.turId,
+      getReferencedColumn: (t) => t.aluTurmaId,
       builder:
           (
             joinBuilder, {
@@ -4006,7 +4176,7 @@ class $$TurmasTableTableManager
                               $$TurmasTableReferences(db, table, p0).alunosRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.turId == item.turId,
+                                (e) => e.aluTurmaId == item.turId,
                               ),
                           typedResults: items,
                         ),
@@ -4042,8 +4212,9 @@ typedef $$AlunosTableCreateCompanionBuilder =
       required String aluNome,
       required String aluCFP,
       required DateTime aluDtNascimento,
-      required int turId,
-      required int usuCuidadorId,
+      required int aluEscolaId,
+      required int aluTurmaId,
+      required int aluCuidadorId,
     });
 typedef $$AlunosTableUpdateCompanionBuilder =
     AlunosCompanion Function({
@@ -4051,45 +4222,64 @@ typedef $$AlunosTableUpdateCompanionBuilder =
       Value<String> aluNome,
       Value<String> aluCFP,
       Value<DateTime> aluDtNascimento,
-      Value<int> turId,
-      Value<int> usuCuidadorId,
+      Value<int> aluEscolaId,
+      Value<int> aluTurmaId,
+      Value<int> aluCuidadorId,
     });
 
 final class $$AlunosTableReferences
     extends BaseReferences<_$AppDatabase, $AlunosTable, Aluno> {
   $$AlunosTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $TurmasTable _turIdTable(_$AppDatabase db) => db.turmas.createAlias(
-    $_aliasNameGenerator(db.alunos.turId, db.turmas.turId),
-  );
+  static $EscolasTable _aluEscolaIdTable(_$AppDatabase db) =>
+      db.escolas.createAlias(
+        $_aliasNameGenerator(db.alunos.aluEscolaId, db.escolas.escId),
+      );
 
-  $$TurmasTableProcessedTableManager get turId {
-    final $_column = $_itemColumn<int>('tur_id')!;
+  $$EscolasTableProcessedTableManager get aluEscolaId {
+    final $_column = $_itemColumn<int>('alu_escola_id')!;
 
-    final manager = $$TurmasTableTableManager(
+    final manager = $$EscolasTableTableManager(
       $_db,
-      $_db.turmas,
-    ).filter((f) => f.turId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_turIdTable($_db));
+      $_db.escolas,
+    ).filter((f) => f.escId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_aluEscolaIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
 
-  static $UsuariosTable _usuCuidadorIdTable(_$AppDatabase db) =>
+  static $TurmasTable _aluTurmaIdTable(_$AppDatabase db) => db.turmas
+      .createAlias($_aliasNameGenerator(db.alunos.aluTurmaId, db.turmas.turId));
+
+  $$TurmasTableProcessedTableManager get aluTurmaId {
+    final $_column = $_itemColumn<int>('alu_turma_id')!;
+
+    final manager = $$TurmasTableTableManager(
+      $_db,
+      $_db.turmas,
+    ).filter((f) => f.turId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_aluTurmaIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $UsuariosTable _aluCuidadorIdTable(_$AppDatabase db) =>
       db.usuarios.createAlias(
-        $_aliasNameGenerator(db.alunos.usuCuidadorId, db.usuarios.usuId),
+        $_aliasNameGenerator(db.alunos.aluCuidadorId, db.usuarios.usuId),
       );
 
-  $$UsuariosTableProcessedTableManager get usuCuidadorId {
-    final $_column = $_itemColumn<int>('usu_cuidador_id')!;
+  $$UsuariosTableProcessedTableManager get aluCuidadorId {
+    final $_column = $_itemColumn<int>('alu_cuidador_id')!;
 
     final manager = $$UsuariosTableTableManager(
       $_db,
       $_db.usuarios,
     ).filter((f) => f.usuId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_usuCuidadorIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_aluCuidadorIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -4144,10 +4334,33 @@ class $$AlunosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$TurmasTableFilterComposer get turId {
+  $$EscolasTableFilterComposer get aluEscolaId {
+    final $$EscolasTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.aluEscolaId,
+      referencedTable: $db.escolas,
+      getReferencedColumn: (t) => t.escId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EscolasTableFilterComposer(
+            $db: $db,
+            $table: $db.escolas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TurmasTableFilterComposer get aluTurmaId {
     final $$TurmasTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.turId,
+      getCurrentColumn: (t) => t.aluTurmaId,
       referencedTable: $db.turmas,
       getReferencedColumn: (t) => t.turId,
       builder:
@@ -4167,10 +4380,10 @@ class $$AlunosTableFilterComposer
     return composer;
   }
 
-  $$UsuariosTableFilterComposer get usuCuidadorId {
+  $$UsuariosTableFilterComposer get aluCuidadorId {
     final $$UsuariosTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuCuidadorId,
+      getCurrentColumn: (t) => t.aluCuidadorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -4245,10 +4458,33 @@ class $$AlunosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$TurmasTableOrderingComposer get turId {
+  $$EscolasTableOrderingComposer get aluEscolaId {
+    final $$EscolasTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.aluEscolaId,
+      referencedTable: $db.escolas,
+      getReferencedColumn: (t) => t.escId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EscolasTableOrderingComposer(
+            $db: $db,
+            $table: $db.escolas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TurmasTableOrderingComposer get aluTurmaId {
     final $$TurmasTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.turId,
+      getCurrentColumn: (t) => t.aluTurmaId,
       referencedTable: $db.turmas,
       getReferencedColumn: (t) => t.turId,
       builder:
@@ -4268,10 +4504,10 @@ class $$AlunosTableOrderingComposer
     return composer;
   }
 
-  $$UsuariosTableOrderingComposer get usuCuidadorId {
+  $$UsuariosTableOrderingComposer get aluCuidadorId {
     final $$UsuariosTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuCuidadorId,
+      getCurrentColumn: (t) => t.aluCuidadorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -4315,10 +4551,33 @@ class $$AlunosTableAnnotationComposer
     builder: (column) => column,
   );
 
-  $$TurmasTableAnnotationComposer get turId {
+  $$EscolasTableAnnotationComposer get aluEscolaId {
+    final $$EscolasTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.aluEscolaId,
+      referencedTable: $db.escolas,
+      getReferencedColumn: (t) => t.escId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EscolasTableAnnotationComposer(
+            $db: $db,
+            $table: $db.escolas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TurmasTableAnnotationComposer get aluTurmaId {
     final $$TurmasTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.turId,
+      getCurrentColumn: (t) => t.aluTurmaId,
       referencedTable: $db.turmas,
       getReferencedColumn: (t) => t.turId,
       builder:
@@ -4338,10 +4597,10 @@ class $$AlunosTableAnnotationComposer
     return composer;
   }
 
-  $$UsuariosTableAnnotationComposer get usuCuidadorId {
+  $$UsuariosTableAnnotationComposer get aluCuidadorId {
     final $$UsuariosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.usuCuidadorId,
+      getCurrentColumn: (t) => t.aluCuidadorId,
       referencedTable: $db.usuarios,
       getReferencedColumn: (t) => t.usuId,
       builder:
@@ -4401,8 +4660,9 @@ class $$AlunosTableTableManager
           (Aluno, $$AlunosTableReferences),
           Aluno,
           PrefetchHooks Function({
-            bool turId,
-            bool usuCuidadorId,
+            bool aluEscolaId,
+            bool aluTurmaId,
+            bool aluCuidadorId,
             bool registrosRefs,
           })
         > {
@@ -4423,15 +4683,17 @@ class $$AlunosTableTableManager
                 Value<String> aluNome = const Value.absent(),
                 Value<String> aluCFP = const Value.absent(),
                 Value<DateTime> aluDtNascimento = const Value.absent(),
-                Value<int> turId = const Value.absent(),
-                Value<int> usuCuidadorId = const Value.absent(),
+                Value<int> aluEscolaId = const Value.absent(),
+                Value<int> aluTurmaId = const Value.absent(),
+                Value<int> aluCuidadorId = const Value.absent(),
               }) => AlunosCompanion(
                 aluId: aluId,
                 aluNome: aluNome,
                 aluCFP: aluCFP,
                 aluDtNascimento: aluDtNascimento,
-                turId: turId,
-                usuCuidadorId: usuCuidadorId,
+                aluEscolaId: aluEscolaId,
+                aluTurmaId: aluTurmaId,
+                aluCuidadorId: aluCuidadorId,
               ),
           createCompanionCallback:
               ({
@@ -4439,15 +4701,17 @@ class $$AlunosTableTableManager
                 required String aluNome,
                 required String aluCFP,
                 required DateTime aluDtNascimento,
-                required int turId,
-                required int usuCuidadorId,
+                required int aluEscolaId,
+                required int aluTurmaId,
+                required int aluCuidadorId,
               }) => AlunosCompanion.insert(
                 aluId: aluId,
                 aluNome: aluNome,
                 aluCFP: aluCFP,
                 aluDtNascimento: aluDtNascimento,
-                turId: turId,
-                usuCuidadorId: usuCuidadorId,
+                aluEscolaId: aluEscolaId,
+                aluTurmaId: aluTurmaId,
+                aluCuidadorId: aluCuidadorId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4456,7 +4720,12 @@ class $$AlunosTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({turId = false, usuCuidadorId = false, registrosRefs = false}) {
+              ({
+                aluEscolaId = false,
+                aluTurmaId = false,
+                aluCuidadorId = false,
+                registrosRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [if (registrosRefs) db.registros],
@@ -4476,28 +4745,41 @@ class $$AlunosTableTableManager
                           dynamic
                         >
                       >(state) {
-                        if (turId) {
+                        if (aluEscolaId) {
                           state =
                               state.withJoin(
                                     currentTable: table,
-                                    currentColumn: table.turId,
+                                    currentColumn: table.aluEscolaId,
                                     referencedTable: $$AlunosTableReferences
-                                        ._turIdTable(db),
+                                        ._aluEscolaIdTable(db),
                                     referencedColumn: $$AlunosTableReferences
-                                        ._turIdTable(db)
+                                        ._aluEscolaIdTable(db)
+                                        .escId,
+                                  )
+                                  as T;
+                        }
+                        if (aluTurmaId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.aluTurmaId,
+                                    referencedTable: $$AlunosTableReferences
+                                        ._aluTurmaIdTable(db),
+                                    referencedColumn: $$AlunosTableReferences
+                                        ._aluTurmaIdTable(db)
                                         .turId,
                                   )
                                   as T;
                         }
-                        if (usuCuidadorId) {
+                        if (aluCuidadorId) {
                           state =
                               state.withJoin(
                                     currentTable: table,
-                                    currentColumn: table.usuCuidadorId,
+                                    currentColumn: table.aluCuidadorId,
                                     referencedTable: $$AlunosTableReferences
-                                        ._usuCuidadorIdTable(db),
+                                        ._aluCuidadorIdTable(db),
                                     referencedColumn: $$AlunosTableReferences
-                                        ._usuCuidadorIdTable(db)
+                                        ._aluCuidadorIdTable(db)
                                         .usuId,
                                   )
                                   as T;
@@ -4549,8 +4831,9 @@ typedef $$AlunosTableProcessedTableManager =
       (Aluno, $$AlunosTableReferences),
       Aluno,
       PrefetchHooks Function({
-        bool turId,
-        bool usuCuidadorId,
+        bool aluEscolaId,
+        bool aluTurmaId,
+        bool aluCuidadorId,
         bool registrosRefs,
       })
     >;

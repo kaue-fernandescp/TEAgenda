@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tea_agenda/data/local/database.dart';
-import 'package:tea_agenda/pages/admin/turmas/adicionar_turma_page.dart';
-import 'package:tea_agenda/pages/admin/turmas/detalhes_turma_page.dart';
+import 'package:tea_agenda/pages/admin/alunos/adicionar_aluno_page.dart';
+import 'package:tea_agenda/pages/admin/alunos/detalhes_aluno_page.dart';
 
-class GerenciarTurmasPage extends StatefulWidget {
-  const GerenciarTurmasPage({super.key});
+class GerenciarAlunosPage extends StatefulWidget {
+  const GerenciarAlunosPage({super.key});
 
   @override
-  State<GerenciarTurmasPage> createState() => _GerenciarTurmasPageState();
+  State<GerenciarAlunosPage> createState() => _GerenciarAlunosPageState();
 }
 
-class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
+class _GerenciarAlunosPageState extends State<GerenciarAlunosPage> {
   final TextEditingController _searchController = TextEditingController();
   String _filtro = '';
 
@@ -22,7 +22,7 @@ class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gerenciar Turmas"),
+        title: const Text("Gerenciar Alunos"),
       ),
       body: Column(
         children: [
@@ -37,7 +37,7 @@ class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Pesquisar turma',
+                labelText: 'Pesquisar aluno',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -47,10 +47,10 @@ class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
               ),
             ),
           ),
-          // Lista de Turmas
+          // Lista de Alunos
           Expanded(
-            child: StreamBuilder<List<Turma>>(
-              stream: database.watchTurmas(),
+            child: StreamBuilder<List<Aluno>>(
+              stream: database.watchAlunos(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -60,59 +60,50 @@ class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
                   return Center(child: Text("Erro: ${snapshot.error}"));
                 }
 
-                final listaTurmas = snapshot.data ?? [];
+                final listaAlunos = snapshot.data ?? [];
 
-                final turmasFiltradas = listaTurmas.where((turma) {
-                  return turma.turNumero
+                final alunosFiltradors = listaAlunos.where((aluno) {
+                  return aluno.aluNome
                     .toString()
                     .toLowerCase()
                     .contains(_filtro.toLowerCase());
                 }).toList();
 
-                if (turmasFiltradas.isEmpty) {
+                if (alunosFiltradors.isEmpty) {
                   return const Center(
-                    child: Text("Nenhuma turma encontrada."),
+                    child: Text("Nenhum aluno encontrado."),
                   );
                 }
 
                 return ListView.builder(
-                  itemCount: turmasFiltradas.length,
+                  itemCount: alunosFiltradors.length,
                   itemBuilder: (context, index) {
-                    final turma = turmasFiltradas[index];
+                    final aluno = alunosFiltradors[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 4,
                       ),
                       child: ListTile(
-                        leading: const Icon(Icons.door_front_door, color: Colors.blue),
-                        title: Text(turma.turNumero.toString()),
-                        subtitle: FutureBuilder<Escola>(
-                          future: database.getEscolaById(turma.turEscola),
-                          builder: (context, snapshot) {
-                            String anoFormatado = "${turma.turAno.index + 1}º Ano";
-                            if (snapshot.hasData) {
-                              return Text("$anoFormatado - ${snapshot.data!.escNome}");
-                            }
-                            return Text("$anoFormatado - Carregando escola...");
-                          }
-                        ),
+                        leading: const Icon(Icons.child_care, color: Colors.blue),
+                        title: Text(aluno.aluNome),
+                        subtitle: Text(aluno.aluCFP),
                         trailing: IconButton(
                           icon: const Icon(Icons.edit, size: 20),
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AdicionarTurmaPage(turmaEdicao : turma),
+                                builder: (context) => AdicionarAlunoPage(alunoEdicao : aluno),
                               ),
                             );
-                          },
+                          }
                         ),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetalhesTurmaPage(turma: turma),
+                              builder: (context) => DetalhesAlunoPage(aluno: aluno),
                             )
                           );
                         },
@@ -130,7 +121,7 @@ class _GerenciarTurmasPageState extends State<GerenciarTurmasPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AdicionarTurmaPage(),
+              builder: (context) => AdicionarAlunoPage(),
             ),
           );
         },
