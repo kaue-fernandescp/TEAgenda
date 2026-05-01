@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:tea_agenda/data/local/database.dart';
 
 class DetalhesEscolaPage extends StatelessWidget {
-  final Escola escola;
+  final Map<String, dynamic> escola;
   
   const DetalhesEscolaPage({super.key, required this.escola});
+
+  // Formatações do CPNJ e CEP
+  String formatarCNPJ(String cnpj) {
+    if (cnpj.length != 14) return cnpj;
+    return "${cnpj.substring(0, 2)}.${cnpj.substring(2, 5)}.${cnpj.substring(5, 8)}/${cnpj.substring(8, 12)}-${cnpj.substring(12)}";
+  }
+
+  String formatarCEP(String cep) {
+    if (cep.length != 8) return cep;
+    return "${cep.substring(0, 5)}-${cep.substring(5)}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,16 +34,17 @@ class DetalhesEscolaPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              escola.escNome,
+              escola['esc_nome'] ?? 'Sem nome',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const Divider(height: 32),
-            _buildDetailItem(Icons.description, "CNPJ", escola.escCNPJ),
-            _buildDetailItem(Icons.location_on, "Endereço", escola.escEndereco),
-            _buildDetailItem(Icons.map, "Bairro", escola.escBairro),
-            _buildDetailItem(Icons.location_city, "Cidade", escola.escCidade),
-            _buildDetailItem(Icons.local_post_office, "CEP", escola.escCEP),
+            _buildDetailItem(Icons.description, "CNPJ", formatarCNPJ(escola['esc_cnpj'] ?? 'Não informado')),
+            _buildDetailItem(Icons.location_on, "Endereço", escola['esc_endereco'] ?? 'Não informado'),
+            _buildDetailItem(Icons.numbers, "Número", escola['esc_numero']?.toString() ?? 'Não informado'),
+            _buildDetailItem(Icons.map, "Bairro", escola['esc_bairro'] ?? 'Não informado'),
+            _buildDetailItem(Icons.location_city, "Cidade", escola['esc_cidade'] ?? 'Não informado'),
+            _buildDetailItem(Icons.local_post_office, "CEP", formatarCEP(escola['esc_cep'] ?? 'Não informado')),
           ],
         ),
       ),

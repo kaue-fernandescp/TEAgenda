@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tea_agenda/data/local/database.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tea_agenda/pages/admin/escolas/adicionar_escola_page.dart';
 import 'package:tea_agenda/pages/admin/escolas/detalhes_escola_page.dart';
 
@@ -15,10 +14,12 @@ class _GerenciarEscolasPageState extends State<GerenciarEscolasPage> {
   final TextEditingController _searchController = TextEditingController();
   String _filtro = '';
 
+  final SupabaseClient supabase = Supabase.instance.client;
+
   @override
   Widget build(BuildContext context) {
 
-    final database = Provider.of<AppDatabase>(context);
+    //final database = Provider.of<AppDatabase>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -49,8 +50,8 @@ class _GerenciarEscolasPageState extends State<GerenciarEscolasPage> {
           ),
           // Lista das Escolas
           Expanded(
-            child: StreamBuilder<List<Escola>>(
-              stream: database.watchEscolas(),
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: supabase.from('escolas').stream(primaryKey: ['esc_id']).order('esc_nome'),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -63,9 +64,8 @@ class _GerenciarEscolasPageState extends State<GerenciarEscolasPage> {
                 final listaEscolas = snapshot.data ?? [];
 
                 final escolasFiltradas = listaEscolas.where((escola) {
-                  return escola.escNome
-                      .toLowerCase()
-                      .contains(_filtro.toLowerCase());
+                  final nome = escola['esc_nome']?.toString().toLowerCase() ?? '';
+                  return nome.contains(_filtro.toLowerCase());
                 }).toList();
 
                 if (escolasFiltradas.isEmpty) {
@@ -85,8 +85,8 @@ class _GerenciarEscolasPageState extends State<GerenciarEscolasPage> {
                       ),
                       child: ListTile(
                         leading: const Icon(Icons.business, color: Colors.blue),
-                        title: Text(escola.escNome),
-                        subtitle: Text("${escola.escEndereco} - ${escola.escBairro}, ${escola.escCidade}"),
+                        title: Text(escola['esc_nome'] ?? 'Sem nome'),
+                        subtitle: Text("${escola['esc_endereco'] ?? ''}, ${escola['esc_numero']} - ${escola['esc_bairro'] ?? ''}, ${escola['esc_cidade'] ?? ''}"),
                         trailing: IconButton(
                           icon: const Icon(Icons.edit, size: 20),
                           onPressed: () {

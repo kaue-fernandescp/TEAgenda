@@ -26,7 +26,6 @@ class _AdminPageState extends State<AdminPage> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
-            // TODO: Adicionar funcionalidades administrativas aqui
             _buildAdminCard(
               title: 'Gerenciar Escolas',
               iconData: Icons.school,

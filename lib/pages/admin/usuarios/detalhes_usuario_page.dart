@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tea_agenda/data/local/database.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DetalhesUsuarioPage extends StatelessWidget {
-  final Usuario usuario;
+  final Map<String, dynamic> usuario;
 
   const DetalhesUsuarioPage({super.key, required this.usuario});
 
   @override
   Widget build(BuildContext context) {
 
-    final database = Provider.of<AppDatabase>(context, listen: false);
+    final supabase = Supabase.instance.client;
+
+    String dataFormatada = 'Não informada';
+    if (usuario['usu_dt_nascimento'] != null) {
+      DateTime dt = DateTime.parse(usuario['usu_dt_nascimento']);
+      dataFormatada = "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}";
+    }
+
+    // Formatação de CPF
+    String formatarCPF(String cpf) {
+      String numeros = cpf.replaceAll(RegExp(r'[^0-9]'), '');
+      if (numeros.length != 11) return numeros;
+      return "${numeros.substring(0, 3)}.${numeros.substring(3, 6)}.${numeros.substring(6, 9)}-${numeros.substring(9)}";
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -28,29 +40,31 @@ class DetalhesUsuarioPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              usuario.usuNome,
+              usuario['usu_nome'] ?? 'Sem nome',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const Divider(height: 32),
-            _buildDetailItem(Icons.badge, "CPF", usuario.usuCPF),
-            _buildDetailItem(Icons.cake, "Data de Nascimento", "${usuario.usuDtNascimento.day}/${usuario.usuDtNascimento.month}/${usuario.usuDtNascimento.year}"),
-            _buildDetailItem(Icons.alternate_email, "E-mail", usuario.usuEmail),
-            _buildDetailItem(Icons.assignment_ind, "Cargo", usuario.usuCargo.name.toUpperCase()),
-            _buildDetailItem(Icons.lock_outline, "Senha", usuario.usuSenha),
-            FutureBuilder<Escola> (
-              future: database.getEscolaById(usuario.usuEscola),
+            _buildDetailItem(Icons.badge, "CPF", formatarCPF(usuario['usu_cpf'] ?? 'Não informado')),
+            _buildDetailItem(Icons.cake, "Data de Nascimento", dataFormatada),
+            _buildDetailItem(Icons.alternate_email, "E-mail", usuario['usu_email'] ?? 'Não informado'),
+            _buildDetailItem(Icons.assignment_ind, 'Cargo', usuario['cargo_nome']?.toString().toUpperCase() ?? 'Sem cargo'),
+
+            FutureBuilder<Map<String, dynamic>?>(
+              future: usuario['usu_escola'] != null
+                ? supabase.from('escolas').select().eq('esc_id', usuario['usu_escola']).maybeSingle()
+                : Future.value(null),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _buildDetailItem(Icons.school, "Escola", "Carregando...");
-                } else if (snapshot.hasError) {
-                  return _buildDetailItem(Icons.school, "Escola", "Erro ao buscar escola");
-                } else if (snapshot.hasData) {
-                  return _buildDetailItem(Icons.school, "Escola", snapshot.data!.escNome);
-                } else {
-                  return _buildDetailItem(Icons.school, "Escola", "Não encontrada");
-                }
+                String escolaNome = "Buscando...";
+                if (snapshot.hasData) escolaNome = snapshot.data!['esc_nome'];
+                if (snapshot.hasError) escolaNome = "Erro ao carregar";
+                if (snapshot.connectionState == ConnectionState.done && !snapshot.hasData) escolaNome = "Não vinculada";
+                return _buildDetailItem(Icons.school, "Escola", escolaNome);
               },
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Text('"A senha é criptografada e não pode ser exibida', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontStyle: FontStyle.italic)),
             ),
           ],
         ),

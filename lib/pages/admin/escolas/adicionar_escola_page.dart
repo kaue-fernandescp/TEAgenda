@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:drift/drift.dart' as d;   // Não ter conflito com o Material
-import 'package:tea_agenda/data/local/database.dart';
-import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 
 class AdicionarEscolaPage extends StatefulWidget {
-  final Escola? escolaEdicao;
+  final Map<String, dynamic>? escolaEdicao;
   const AdicionarEscolaPage({super.key, this.escolaEdicao});
 
   @override
@@ -17,6 +17,7 @@ class _AdicionarEscolaPageState extends State<AdicionarEscolaPage> {
   final _nomeController = TextEditingController();
   final _cnpjController = TextEditingController();
   final _enderecoController = TextEditingController();
+  final _numeroController = TextEditingController();
   final _bairroController = TextEditingController();
   final _cidadeController = TextEditingController();
   final _cepController = TextEditingController();
@@ -25,51 +26,81 @@ class _AdicionarEscolaPageState extends State<AdicionarEscolaPage> {
   void initState() {
     super.initState();
     if (widget.escolaEdicao != null) {
-      _nomeController.text = widget.escolaEdicao!.escNome;
-      _cnpjController.text = widget.escolaEdicao!.escCNPJ;
-      _enderecoController.text = widget.escolaEdicao!.escEndereco;
-      _bairroController.text = widget.escolaEdicao!.escBairro;
-      _cidadeController.text = widget.escolaEdicao!.escCidade;
-      _cepController.text = widget.escolaEdicao!.escCEP;
+      _nomeController.text = widget.escolaEdicao!['esc_nome'] ?? '';
+      _cnpjController.text = widget.escolaEdicao!['esc_cnpj'] ?? '';
+      _enderecoController.text = widget.escolaEdicao!['esc_endereco'] ?? '';
+      _numeroController.text = widget.escolaEdicao!['esc_numero']?.toString() ?? '';
+      _bairroController.text = widget.escolaEdicao!['esc_bairro'] ?? '';
+      _cidadeController.text = widget.escolaEdicao!['esc_cidade'] ?? '';
+      _cepController.text = widget.escolaEdicao!['esc_cep'] ?? '';
     }
   }
 
-  void _salvarEscola() async {
+  Future<void> _salvarEscola() async {
     if (_formKey.currentState!.validate()) {
-      final database = Provider.of<AppDatabase>(context, listen: false);
 
-      final novaEscola = EscolasCompanion(
-        escNome: d.Value(_nomeController.text),
-        escCNPJ: d.Value(_cnpjController.text),
-        escEndereco: d.Value(_enderecoController.text),
-        escBairro: d.Value(_bairroController.text),
-        escCidade: d.Value(_cidadeController.text),
-        escCEP: d.Value(_cepController.text),
-      );
+      final cepLimpo = _cepController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final cnpjLimpo = _cnpjController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final supabase = Supabase.instance.client;
 
-      if (widget.escolaEdicao != null) {
-        final escolaId = novaEscola.copyWith(
-          escId: d.Value(widget.escolaEdicao!.escId),
+      final dadosEscola = {
+        'esc_nome': _nomeController.text,
+        'esc_cnpj': cnpjLimpo,
+        'esc_endereco': _enderecoController.text,
+        'esc_numero': int.tryParse(_numeroController.text),
+        'esc_bairro': _bairroController.text,
+        'esc_cidade': _cidadeController.text,
+        'esc_cep': cepLimpo,
+      };
+
+      try {
+        if (widget.escolaEdicao != null) {
+          // UPDATE
+          await supabase
+              .from('escolas')
+              .update(dadosEscola)
+              .eq('esc_id', widget.escolaEdicao!['esc_id']);
+        } else {
+          // INSERT
+          await supabase.from('escolas').insert(dadosEscola);
+        }
+
+        if (!mounted) return;
+
+        String mensagem = widget.escolaEdicao != null
+            ? 'Escola alterada com sucesso!'
+            : 'Escola cadastrada com sucesso!';
+
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(mensagem),
+            backgroundColor: Colors.green,
+          ),
         );
-        await database.update(database.escolas).replace(escolaId);
-      } else {
-        await database.insertEscola(novaEscola);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erro ao salvar: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-
-      String mensagem = widget.escolaEdicao != null
-        ? 'Escola alterada com sucesso!'
-        : 'Escola cadastrada com sucesso!';
-
-      if (!mounted) return;
-      Navigator.pop(context); // Voltar para a lista
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(mensagem),
-          backgroundColor: Colors.green,
-        ),
-      );
     }
   }
+
+  // Máscara para CNPJ
+  final maskCNPJ = MaskTextInputFormatter(
+    mask: '##.###.###/####-##',
+    filter: {"#": RegExp(r'[0-9]')}
+  );
+
+  // Máscara para CEP
+  final maskCEP = MaskTextInputFormatter(
+    mask: '#####-###', 
+    filter: {"#": RegExp(r'[0-9]')}
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -89,13 +120,25 @@ class _AdicionarEscolaPageState extends State<AdicionarEscolaPage> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _cnpjController,
-                decoration: const InputDecoration(labelText: 'CNPJ'),
+                inputFormatters: [maskCNPJ],
+                decoration: const InputDecoration(labelText: 'CNPJ', hintText: '00.000.000/0000-00'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Informe o CNPJ';
+                  if (!CNPJValidator.isValid(value)) return 'CNPJ inválido';
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _enderecoController,
                 decoration: const InputDecoration(labelText: 'Endereço'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _numeroController,
+                decoration: const InputDecoration(labelText: 'Número'),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -110,7 +153,8 @@ class _AdicionarEscolaPageState extends State<AdicionarEscolaPage> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _cepController,
-                decoration: const InputDecoration(labelText: 'CEP'),
+                inputFormatters: [maskCEP],
+                decoration: const InputDecoration(labelText: 'CEP', hintText: '00000-000'),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 32),
