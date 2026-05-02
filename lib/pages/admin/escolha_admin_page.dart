@@ -31,13 +31,13 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home'), centerTitle: true),
+      appBar: AppBar(title: const Text('Home Settings'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _buildAdminCard(
               title: 'Painel Administrativo',
               iconData: Icons.admin_panel_settings,
@@ -50,7 +50,7 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
                 );
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
             _buildAdminCard(
               title: 'Registros',
               iconData: Icons.view_agenda,
@@ -63,12 +63,13 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
                 );
               },
             ),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _deslogar,
               icon: const Icon(Icons.logout),
               label: const Text('Sair do Sistema'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[50], // Um tom leve de vermelho
+                backgroundColor: Colors.red[50],
                 foregroundColor: Colors.red,
               ),
             ),
