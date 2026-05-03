@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tea_agenda/data/repositories/usuarios_repository.dart';
 import 'package:tea_agenda/pages/admin/escolha_admin_page.dart';
-import 'package:tea_agenda/pages/student_selection.dart';
+import 'package:tea_agenda/pages/professores/class_selection.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const StudentSelection()
+                builder: (context) => const ClassSelection()
               ),
             );
           }

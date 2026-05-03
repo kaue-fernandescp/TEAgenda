@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tea_agenda/data/local/database.dart';
 import 'package:tea_agenda/pages/functions/calendar_controller.dart';
 import 'package:tea_agenda/pages/login_page.dart';
 
@@ -18,15 +16,9 @@ void main() async {
     anonKey: 'sb_publishable_fEwVPjjLvoM5BGimwlAGrg_nRf9tlKS'      // Senha da API
   );
 
-  // Banco de dados local
-  final database = AppDatabase();
 
   runApp(
-    Provider<AppDatabase>(
-      create: (context) => database,
-      dispose: (context, db) => db.close(),
-      child: const MyApp(),
-    )
+    MyApp(),
   );
 }
 
