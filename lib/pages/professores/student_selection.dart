@@ -77,6 +77,7 @@ class StudentSelection extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => StudentPage(
                                   name: aluno['alu_nome'],
+                                  alunoId: aluno['alu_id'],
                                 ),
                               ),
                             );
