@@ -33,39 +33,6 @@ class _ReportsPageState extends State<ReportsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
-            const Text(
-              "Tipo de Relatório",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text("Detalhado"),
-                    value: 'detalhado',
-                    groupValue: _reportType,
-                    onChanged: (value) {
-                      setState(() => _reportType = value!);
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text("Resumido"),
-                    value: 'resumido',
-                    groupValue: _reportType,
-                    onChanged: (value) {
-                      setState(() => _reportType = value!);
-                    },
-                  ),
-                ),
-              ],
-            ),
-
             const SizedBox(height: 20),
             const Text(
               "Intervalo de Tempo",
@@ -230,7 +197,7 @@ class _ReportsPageState extends State<ReportsPage> {
     Sheet sheetObject = excel['Relatorio_TEA'];
     excel.delete('Sheet1');
 
-    sheetObject.appendRow([TextCellValue('Relatório de Acompanhamento - TEA_Agenda')]);
+    sheetObject.appendRow([TextCellValue('Relatório de Acompanhamento - TEAgenda')]);
     sheetObject.appendRow([]);
     sheetObject.appendRow([
       TextCellValue('Data de Registro'),
@@ -248,9 +215,9 @@ class _ReportsPageState extends State<ReportsPage> {
       sheetObject.appendRow([
         TextCellValue(dataString),
         TextCellValue(row['reg_humor']?.toString() ?? '3'),
-        TextCellValue(row['alimentacao']?['nome'] ?? 'Não informado'),
-        TextCellValue(row['comportamento']?['nome'] ?? 'Não informado'),
-        TextCellValue(row['atividades']?['nome'] ?? 'Não informado'),
+        TextCellValue(row['alimentacao']?['ali_status'] ?? 'Não informado'),
+        TextCellValue(row['comportamento']?['com_status'] ?? 'Não informado'),
+        TextCellValue(row['atividades']?['ati_status'] ?? 'Não informado'),
         TextCellValue(row['reg_observacao'] ?? ''),
       ]);
     }
@@ -275,7 +242,7 @@ class _ReportsPageState extends State<ReportsPage> {
           return [
             pw.Header(
               level: 0,
-              child: pw.Text("Relatório de Acompanhamento - TEA_Agenda", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              child: pw.Text("Relatório de Acompanhamento - TEAgenda", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
             ),
             pw.SizedBox(height: 10),
             pw.Text("Período analítico: ${_formatDate(_startDate)} até ${_formatDate(_endDate)}"),
@@ -289,9 +256,9 @@ class _ReportsPageState extends State<ReportsPage> {
                 return [
                   "${dateRaw.day}/${dateRaw.month}/${dateRaw.year}",
                   _textoHumor(item['reg_humor']),
-                  item['alimentacao']?['nome'] ?? 'N/A',
-                  item['comportamento']?['nome'] ?? 'N/A',
-                  item['atividades']?['nome'] ?? 'N/A',
+                  item['alimentacao']?['ali_status'] ?? 'N/A',
+                  item['comportamento']?['com_status'] ?? 'N/A',
+                  item['atividades']?['ati_status'] ?? 'N/A',
                 ];
               }).toList(),
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
