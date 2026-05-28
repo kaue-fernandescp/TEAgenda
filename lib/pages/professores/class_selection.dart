@@ -13,9 +13,76 @@ class ClassSelection extends StatefulWidget {
 class _ClassSelectionPageState extends State<ClassSelection> {
   final supabase = Supabase.instance.client;
 
+  bool _verificandoCargo = true;
+  bool _isAdmin = false;
+  bool _isCuidador = false;
+  List<int> _idsTurmasCuidador = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarCargo();
+  }
+
+  // Função para verificar o cargo do usuário
+  Future<void> _verificarCargo() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+      final dadosUsuario = await supabase.from('usuarios').select('usu_cargo').eq('usu_id', user.id).maybeSingle();
+
+      if (dadosUsuario != null) {
+        final int cargoId = dadosUsuario['usu_cargo'] ?? 0;
+        
+        // Administrador
+        if (cargoId == 4) {
+          setState(() {
+            _isAdmin = true;
+            _verificandoCargo = false;
+          });
+        // Cuidador
+        } else if (cargoId == 1) {
+          _isCuidador = true;
+          await _turmasDosAlunosCuidador(user.id);
+        // Professor
+        } else {
+          setState(() => _verificandoCargo = false);
+        }
+      } else {
+        setState(() => _verificandoCargo = false);
+      }
+    } catch (e) {
+      debugPrint("Erro ao verificar cargo: $e");
+      setState(() => _verificandoCargo = false);
+    }
+  }
+
+  // Buscar as turmas com os alunos vinculados ao cuidador
+  Future<void> _turmasDosAlunosCuidador(String cuidadorId) async {
+    try {
+      final List<Map<String, dynamic>> alunosVinculados = await supabase.from('alunos').select('alu_turma').eq('alu_cuidador', cuidadorId);
+
+      final ids = alunosVinculados.map((aluno) => aluno['alu_turma'] as int?).whereType<int>().toSet().toList();
+
+      setState(() {
+        _idsTurmasCuidador = ids;
+        _verificandoCargo = false;
+      });
+    } catch (e) {
+      debugPrint("Erro ao buscar turmas do cuidador: $e");
+      setState(() => _verificandoCargo = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = supabase.auth.currentUser;
+
+    if (_verificandoCargo) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +90,15 @@ class _ClassSelectionPageState extends State<ClassSelection> {
         centerTitle: true,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: supabase.from('turmas_do_professor').stream(primaryKey: ['tur_id']).eq('tur_professor', user!.id),
+        stream: () {
+          if (_isAdmin) {
+            return supabase.from('turmas_do_professor').stream(primaryKey: ['tur_id']).order('tur_numero', ascending: true);
+          } else if (_isCuidador) {
+            return supabase.from('turmas_do_professor').stream(primaryKey: ['tur_id']).inFilter('tur_id', _idsTurmasCuidador.isNotEmpty ? _idsTurmasCuidador : [-1]);
+          } else {
+            return supabase.from('turmas_do_professor').stream(primaryKey: ['tur_id']).eq('tur_professor', user!.id);
+          }
+        }(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -61,6 +136,9 @@ class _ClassSelectionPageState extends State<ClassSelection> {
                   itemCount: turmas.length,
                   itemBuilder: (context, index) {
                     final turma = turmas[index];
+                    final String numeroTurma = turma['tur_numero']?.toString() ?? 'S/N';
+                    final String numeroAno = turma['ano_numero']?.toString() ?? turma['tur_ano']?.toString() ?? '-';
+                    final String nomeEscola = turma['esc_nome'] ?? 'Escola Geral';
                     return Card(
                       elevation: 3,
                       margin: const EdgeInsets.only(bottom: 16),
@@ -72,10 +150,10 @@ class _ClassSelectionPageState extends State<ClassSelection> {
                           child: Icon(Icons.groups, color: Colors.white),
                         ),
                         title: Text(
-                          "Turma ${turma['tur_numero']}",
+                          "Turma $numeroTurma",
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text("${turma['ano_numero']}º Ano - ${turma['esc_nome']}"),
+                        subtitle: Text("$numeroAnoº Ano - $nomeEscola"),
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () {
                           Navigator.push(
@@ -83,7 +161,7 @@ class _ClassSelectionPageState extends State<ClassSelection> {
                             MaterialPageRoute(
                               builder: (context) => StudentSelection(
                                 turmaId: turma['tur_id'],
-                                turmaNome: turma['tur_numero'].toString(),
+                                turmaNome: numeroTurma,
                               ),
                             ),
                           );

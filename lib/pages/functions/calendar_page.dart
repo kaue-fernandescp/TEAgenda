@@ -11,11 +11,18 @@ class CalendarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        final CalendarController controller = Get.put(CalendarController(alunoId: alunoId));
+    final CalendarController controller = Get.put(
+      CalendarController(alunoId: alunoId),
+      tag: alunoId.toString(),
+    );
 
     return Scaffold(
       body: GetBuilder<CalendarController>(
         id: 'calendario',
+        tag: alunoId.toString(),
+        initState: (state) {
+          controller.fetchRecords();
+        },
         builder: (controller) {
           if (controller.carregando) {
             return const Center(child: CircularProgressIndicator());

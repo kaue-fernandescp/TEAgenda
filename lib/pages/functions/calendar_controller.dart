@@ -29,7 +29,7 @@ class CalendarController extends GetxController {
   Future<void> fetchRecords() async {
     try {
       carregando = true;
-      update(['calendario']);
+      update(['calendario', 'agenda']);
       final data = await supabase.from('registros').select('''
         *,
         alimentacao:reg_alimentacao(ali_status),
@@ -38,12 +38,14 @@ class CalendarController extends GetxController {
       ''').eq('reg_aluno', alunoId);
 
       _recordsByDate.clear();
+      selectedRecord = null;
+
       for (var reg in data) {
         final date = DateTime.parse(reg['reg_created_at']);
         _recordsByDate[DateTime(date.year, date.month, date.day)] = reg;
       }
 
-      onDaySelected(focusedDay, focusedDay);
+      onDaySelected(selectedDay, focusedDay);
     } catch (e) {
       print("Erro ao carregar calendário: $e");
     } finally {
