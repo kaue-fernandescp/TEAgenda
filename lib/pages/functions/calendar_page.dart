@@ -84,7 +84,7 @@ class CalendarPage extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    'Registros do dia selecionado',
+                    'Registros do dia:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -103,11 +103,45 @@ class CalendarPage extends StatelessWidget {
     final record = controller.selectedRecord;
 
     if (record == null) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          'Nenhum registro salvo para este dia.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+      final dataSelecionada = controller.selectedDay;
+      final dataFormatada = "${dataSelecionada.day}/${dataSelecionada.month}/${dataSelecionada.year}";
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nenhum registro salvo para esse dia.',
+              style: const TextStyle(fontSize: 16, color: Colors.grey, fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Get.to(() => AddPage(
+                        alunoId: alunoId,
+                        registroDia: null,
+                        dataSelecionada: dataSelecionada,
+                      ));
+                  controller.fetchRecords();
+                },
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: Text(
+                  'Realizar registro do dia $dataFormatada',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }

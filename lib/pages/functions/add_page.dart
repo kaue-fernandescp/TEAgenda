@@ -6,7 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AddPage extends StatefulWidget {
   final int alunoId;
   final Map<String, dynamic>? registroDia;
-  const AddPage({super.key, required this.alunoId, this.registroDia});
+  final DateTime? dataSelecionada;
+  const AddPage({super.key, required this.alunoId, this.registroDia, this.dataSelecionada});
 
   @override
   State<AddPage> createState() => _AddPageState();
@@ -90,6 +91,9 @@ class _AddPageState extends State<AddPage> {
       'reg_comportamento': _idComportamento,
       'reg_humor': _idHumor,
       'reg_observacao': _observationController.text.trim(),
+      // VERIFICAR COM O DIEGO
+      if (widget.registroDia == null && widget.dataSelecionada != null)
+        'reg_created_at': widget.dataSelecionada!.toIso8601String(),
     };
 
     try {
@@ -142,8 +146,8 @@ class _AddPageState extends State<AddPage> {
   Widget build(BuildContext context) {
     if (_carregando) return const Center(child: CircularProgressIndicator());
 
-    final hoje = DateTime.now();
-    final dataFormatada = '${hoje.day}/${hoje.month}/${hoje.year}';
+    final dataExibicao = widget.dataSelecionada ?? DateTime.now();
+    final dataFormatada = '${dataExibicao.day}/${dataExibicao.month}/${dataExibicao.year}';
 
     return Scaffold(
       appBar: widget.registroDia != null 
@@ -193,7 +197,7 @@ class _AddPageState extends State<AddPage> {
                       child: Icon(
                         Icons.face,
                         size: 45,
-                        color: _idHumor == i ? _corHumor(i) : Colors.grey[300],
+                        color: i <= _idHumor ? _corHumor(_idHumor) : Colors.grey[300],
                       ),
                     ),
                 ],

@@ -18,8 +18,7 @@ class ReportsPage extends StatefulWidget {
 
 class _ReportsPageState extends State<ReportsPage> {
   final supabase = Supabase.instance.client;
-  String _reportType = 'detalhado';
-  int _humorSelecionado = 0;
+  List<int> _humorSelecionado = [];
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 7));
   DateTime _endDate = DateTime.now();
   String _shareFormat = 'pdf';
@@ -73,12 +72,12 @@ class _ReportsPageState extends State<ReportsPage> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
-                  onPressed: () => setState(() => _humorSelecionado = 0),
+                  onPressed: () => setState(() => _humorSelecionado.clear()),
                   child: Text(
                     "Todos",
                     style: TextStyle(
-                      fontWeight: _humorSelecionado == 0 ? FontWeight.bold : FontWeight.normal,
-                      color: _humorSelecionado == 0 ? Colors.blue : Colors.grey,
+                      fontWeight: _humorSelecionado.isEmpty ? FontWeight.bold : FontWeight.normal,
+                      color: _humorSelecionado.isEmpty ? Colors.blue : Colors.grey,
                     ),
                   ),
                 ),
@@ -90,11 +89,19 @@ class _ReportsPageState extends State<ReportsPage> {
               children: [
                 for (int i = 1; i <= 5; i++)
                   GestureDetector(
-                    onTap: () => setState(() => _humorSelecionado = i),
+                    onTap: () {
+                      setState(() {
+                        if (_humorSelecionado.contains(i)) {
+                          _humorSelecionado.remove(i);
+                        } else {
+                          _humorSelecionado.add(i);
+                        }
+                      });
+                    },
                     child: Icon(
                       Icons.face,
                       size: 45,
-                      color: _humorSelecionado == i 
+                      color: _humorSelecionado.contains(i)
                           ? _corHumor(i) 
                           : Colors.grey[300],
                     ),
@@ -163,11 +170,13 @@ class _ReportsPageState extends State<ReportsPage> {
       .gte('reg_created_at', _startDate.toIso8601String())
       .lte('reg_created_at', dataFimFiltro.toIso8601String());
 
-      if (_humorSelecionado != 0) {
-        query = query.eq('reg_humor', _humorSelecionado);
+      if (_humorSelecionado.isNotEmpty) {
+        query = query.inFilter('reg_humor', _humorSelecionado);
       }
 
-      final List<Map<String, dynamic>> dados = await query;
+      final finalQuery = query.order('reg_created_at', ascending: true);
+
+      final List<Map<String, dynamic>> dados = await finalQuery;
 
       if (dados.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -214,7 +223,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
       sheetObject.appendRow([
         TextCellValue(dataString),
-        TextCellValue(row['reg_humor']?.toString() ?? '3'),
+        TextCellValue(_textoHumor(row['reg_humor'])),
         TextCellValue(row['alimentacao']?['ali_status'] ?? 'Não informado'),
         TextCellValue(row['comportamento']?['com_status'] ?? 'Não informado'),
         TextCellValue(row['atividades']?['ati_status'] ?? 'Não informado'),
@@ -248,7 +257,7 @@ class _ReportsPageState extends State<ReportsPage> {
             pw.Text("Período analítico: ${_formatDate(_startDate)} até ${_formatDate(_endDate)}"),
             pw.SizedBox(height: 20),
 
-            // Tabela estruturada para o PDF
+            // Tabela o PDF
             pw.TableHelper.fromTextArray(
               headers: ['Data', 'Humor', 'Alimentação', 'Comportamento', 'Atividades'],
               data: dados.map((item) {
@@ -264,19 +273,16 @@ class _ReportsPageState extends State<ReportsPage> {
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               cellAlignment: pw.Alignment.centerLeft,
             ),
-
-            if (_reportType == 'detalhado') ...[
-              pw.SizedBox(height: 25),
-              pw.Text("Seção de Observações Descritivas:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-              pw.Divider(),
-              for (var item in dados) ...[
-                if (item['reg_observacao'] != null && item['reg_observacao'].toString().isNotEmpty) ...[
-                  pw.Bullet(
-                    text: "Dia ${DateTime.parse(item['reg_created_at']).day}: ${item['reg_observacao']}",
-                    style: const pw.TextStyle(fontSize: 11),
-                  ),
-                  pw.SizedBox(height: 4),
-                ]
+            pw.SizedBox(height: 25),
+            pw.Text("Observações Descritivas:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Divider(),
+            for (var item in dados) ...[
+              if (item['reg_observacao'] != null && item['reg_observacao'].toString().isNotEmpty) ...[
+                pw.Bullet(
+                  text: "Dia ${DateTime.parse(item['reg_created_at']).day}: ${item['reg_observacao']}",
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
+                pw.SizedBox(height: 4),
               ]
             ]
           ];
