@@ -37,7 +37,7 @@ class StudentSelection extends StatelessWidget {
                       child: Text("Nenhum aluno encontrado nesta turma."),
                     );
                   }
-                  
+
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: alunos.length,
@@ -95,3 +95,4 @@ class StudentSelection extends StatelessWidget {
     );
   }
 }
+

@@ -30,9 +30,7 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminPage()
-                  ),
+                  MaterialPageRoute(builder: (context) => const AdminPage()),
                 );
               },
             ),
@@ -44,12 +42,12 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ClassSelection()
+                    builder: (context) => const ClassSelection(),
                   ),
                 );
               },
             ),
-            const SizedBox(height: 8), 
+            const SizedBox(height: 8),
             _buildBotaoDeslogar(),
             const SizedBox(height: 16),
           ],
@@ -100,3 +98,5 @@ class _AdminEscolhaPageState extends State<AdminEscolha> {
     );
   }
 }
+
+

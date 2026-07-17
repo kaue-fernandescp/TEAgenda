@@ -33,7 +33,7 @@ class _ClassSelectionPageState extends State<ClassSelection> {
 
       if (dadosUsuario != null) {
         final int cargoId = dadosUsuario['usu_cargo'] ?? 0;
-        
+
         // Administrador
         if (cargoId == 4) {
           setState(() {
@@ -170,7 +170,7 @@ class _ClassSelectionPageState extends State<ClassSelection> {
                     );
                   },
                 ),
-                const SizedBox(height: 8), 
+                const SizedBox(height: 8),
                 _buildBotaoDeslogar(),
                 const SizedBox(height: 16),
               ],
@@ -207,3 +207,4 @@ class _ClassSelectionPageState extends State<ClassSelection> {
     );
   }
 }
+

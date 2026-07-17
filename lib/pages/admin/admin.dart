@@ -27,7 +27,11 @@ class _AdminPageState extends State<AdminPage> {
     try {
       final user = supabase.auth.currentUser;
       if (user != null) {
-        final dados = await supabase.from('usuarios_com_cargos').select().eq('usu_id', user.id).single();
+        final dados = await supabase
+            .from('usuarios_com_cargos')
+            .select()
+            .eq('usu_id', user.id)
+            .single();
 
         setState(() {
           _perfilUsuario = dados;
@@ -40,12 +44,16 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     if (_carregando) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final String cargo = (_perfilUsuario?['cargo_nome'] ?? '').toString().trim().toUpperCase();
+    final String cargo = (_perfilUsuario?['cargo_nome'] ?? '')
+        .toString()
+        .trim()
+        .toUpperCase();
 
     final bool ehAdmin = cargo == 'ADMINISTRADOR';
     final bool ehGestor = cargo == 'DIRETOR' || cargo == 'ORIENTADOR';
@@ -61,7 +69,7 @@ class _AdminPageState extends State<AdminPage> {
               'Painel Administrativo',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            
+
             const SizedBox(height: 16),
             if (ehAdmin) ...[
               _buildAdminCard(
@@ -71,15 +79,15 @@ class _AdminPageState extends State<AdminPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const GerenciarEscolasPage()
-                      ),
+                      builder: (context) => const GerenciarEscolasPage(),
+                    ),
                   );
                 },
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            if (ehAdmin) ... [
+            if (ehAdmin) ...[
               _buildAdminCard(
                 title: 'Gerenciar Usuários',
                 iconData: Icons.person,
@@ -93,7 +101,7 @@ class _AdminPageState extends State<AdminPage> {
                 },
               ),
             ],
-            
+
             const SizedBox(height: 16),
             if (ehAdmin || ehGestor) ...[
               _buildAdminCard(
@@ -109,7 +117,7 @@ class _AdminPageState extends State<AdminPage> {
                 },
               ),
             ],
-            
+
             const SizedBox(height: 16),
             if (ehAdmin || ehGestor) ...[
               _buildAdminCard(

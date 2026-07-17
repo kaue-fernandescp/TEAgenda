@@ -5,8 +5,8 @@ import 'package:cpf_cnpj_validator/cpf_validator.dart';
 
 // Máscara para CPF
 final maskCPF = MaskTextInputFormatter(
-  mask: '###.###.###-##', 
-  filter: {"#": RegExp(r'[0-9]')}
+  mask: '###.###.###-##',
+  filter: {"#": RegExp(r'[0-9]')},
 );
 
 class AdicionarAlunoPage extends StatefulWidget {
@@ -42,7 +42,10 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
 
   Future<void> _inicializarDados() async {
     try {
-      final escolasData = await supabase.from('escolas').select().order('esc_nome');
+      final escolasData = await supabase
+          .from('escolas')
+          .select()
+          .order('esc_nome');
 
       setState(() {
         _escolas = List<Map<String, dynamic>>.from(escolasData);
@@ -53,11 +56,11 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
         final a = widget.alunoEdicao!;
         _nomeController.text = a['alu_nome'] ?? '';
         _cpfController.text = a['alu_cpf'] ?? '';
-        _dataNascimento = a['alu_dt_nascimento'] != null 
-            ? DateTime.parse(a['alu_dt_nascimento']) 
+        _dataNascimento = a['alu_dt_nascimento'] != null
+            ? DateTime.parse(a['alu_dt_nascimento'])
             : null;
         _escolaIdSelecionada = a['alu_escola'];
-        
+
         if (_escolaIdSelecionada != null) {
           await _carregarListasDependente(_escolaIdSelecionada!);
           setState(() {
@@ -73,8 +76,16 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
 
   Future<void> _carregarListasDependente(int escolaId) async {
     final resultados = await Future.wait([
-      supabase.from('turmas').select().eq('tur_escola', escolaId).order('tur_numero'),
-      supabase.from('usuarios_com_cargos').select().eq('usu_escola', escolaId).ilike('cargo_nome', 'CUIDADOR%')
+      supabase
+          .from('turmas')
+          .select()
+          .eq('tur_escola', escolaId)
+          .order('tur_numero'),
+      supabase
+          .from('usuarios_com_cargos')
+          .select()
+          .eq('usu_escola', escolaId)
+          .ilike('cargo_nome', 'CUIDADOR%'),
     ]);
 
     setState(() {
@@ -84,18 +95,20 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
   }
 
   Future<void> _selecionarData(BuildContext context) async {
-    final DateTime? data_selecionada = await showDatePicker(
+    final DateTime? dataSelecionada = await showDatePicker(
       context: context,
       initialDate: _dataNascimento ?? DateTime(2015),
       firstDate: DateTime(2010),
       lastDate: DateTime.now(),
     );
-    if (data_selecionada != null) setState(() => _dataNascimento = data_selecionada);
+    if (dataSelecionada != null) {
+      setState(() => _dataNascimento = dataSelecionada);
+    }
   }
 
   Future<void> _salvarAluno() async {
     if (_formKey.currentState!.validate() && _dataNascimento != null) {
-      final cpfLimpo = _nomeController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final cpfLimpo = _cpfController.text.replaceAll(RegExp(r'[^0-9]'), '');
 
       final dados = {
         'alu_nome': _nomeController.text.trim(),
@@ -108,7 +121,10 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
 
       try {
         if (widget.alunoEdicao != null) {
-          await supabase.from('alunos').update(dados).eq('alu_id', widget.alunoEdicao!['alu_id']);
+          await supabase
+              .from('alunos')
+              .update(dados)
+              .eq('alu_id', widget.alunoEdicao!['alu_id']);
         } else {
           await supabase.from('alunos').insert(dados);
         }
@@ -116,7 +132,10 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
         if (!mounted) return;
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Salvo com sucesso!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Salvo com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,10 +147,14 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_carregando) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_carregando) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.alunoEdicao != null ? 'Editar Aluno' : 'Novo Aluno')),
+      appBar: AppBar(
+        title: Text(widget.alunoEdicao != null ? 'Editar Aluno' : 'Novo Aluno'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -140,7 +163,10 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
             children: [
               TextFormField(
                 controller: _nomeController,
-                decoration: const InputDecoration(labelText: 'Nome do Aluno', prefixIcon: Icon(Icons.child_care)),
+                decoration: const InputDecoration(
+                  labelText: 'Nome do Aluno',
+                  prefixIcon: Icon(Icons.child_care),
+                ),
                 validator: (v) => v!.isEmpty ? 'informe o nome' : null,
               ),
 
@@ -148,7 +174,10 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
               TextFormField(
                 controller: _cpfController,
                 inputFormatters: [maskCPF],
-                decoration: const InputDecoration(labelText: 'CPF', prefixIcon: Icon(Icons.badge)),
+                decoration: const InputDecoration(
+                  labelText: 'CPF',
+                  prefixIcon: Icon(Icons.badge),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Informe o CPF';
@@ -161,17 +190,29 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today),
-                title: Text(_dataNascimento == null
-                  ? "Selecionar Data de Nascimento"
-                  : "Nascimento: ${_dataNascimento!.day}/${_dataNascimento!.month}/${_dataNascimento!.year}"),
+                title: Text(
+                  _dataNascimento == null
+                      ? "Selecionar Data de Nascimento"
+                      : "Nascimento: ${_dataNascimento!.day}/${_dataNascimento!.month}/${_dataNascimento!.year}",
+                ),
                 onTap: () => _selecionarData(context),
               ),
 
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _escolaIdSelecionada,
-                decoration: const InputDecoration(labelText: 'Escola vinculada', prefixIcon: Icon(Icons.school)),
-                items: _escolas.map((e) => DropdownMenuItem(value: e['esc_id'] as int, child: Text(e['esc_nome']))).toList(),
+                initialValue: _escolaIdSelecionada,
+                decoration: const InputDecoration(
+                  labelText: 'Escola vinculada',
+                  prefixIcon: Icon(Icons.school),
+                ),
+                items: _escolas
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e['esc_id'] as int,
+                        child: Text(e['esc_nome']),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) {
                   setState(() {
                     _escolaIdSelecionada = val;
@@ -185,29 +226,59 @@ class _AdicionarAlunoPageState extends State<AdicionarAlunoPage> {
 
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _turmaIdSelecionada,
-                decoration: const InputDecoration(labelText: 'Turma', prefixIcon: Icon(Icons.groups_3)),
+                initialValue: _turmaIdSelecionada,
+                decoration: const InputDecoration(
+                  labelText: 'Turma',
+                  prefixIcon: Icon(Icons.groups_3),
+                ),
                 disabledHint: const Text("Selecione a escola primeiro"),
-                items: _turmas.map((t) => DropdownMenuItem(value: t['tur_id'] as int, child: Text("Turma ${t['tur_numero']}"))).toList(),
-                onChanged: _escolaIdSelecionada == null ? null : (val) => setState(() => _turmaIdSelecionada = val),
+                items: _turmas
+                    .map(
+                      (t) => DropdownMenuItem(
+                        value: t['tur_id'] as int,
+                        child: Text("Turma ${t['tur_numero']}"),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _escolaIdSelecionada == null
+                    ? null
+                    : (val) => setState(() => _turmaIdSelecionada = val),
                 validator: (v) => v == null ? 'Selecione a turma' : null,
               ),
 
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _cuidadorIdSelecionado,
-                decoration: const InputDecoration(labelText: 'Responsável (Cuidador)', prefixIcon: Icon(Icons.person_pin)),
+                initialValue: _cuidadorIdSelecionado,
+                decoration: const InputDecoration(
+                  labelText: 'Responsável (Cuidador)',
+                  prefixIcon: Icon(Icons.person_pin),
+                ),
                 disabledHint: const Text("Selecione a escola primeiro"),
-                items: _cuidadores.map((c) => DropdownMenuItem(value: c['usu_id'] as String, child: Text(c['usu_nome']))).toList(),
-                onChanged: _escolaIdSelecionada == null ? null : (val) => setState(() => _cuidadorIdSelecionado = val),
+                items: _cuidadores
+                    .map(
+                      (c) => DropdownMenuItem(
+                        value: c['usu_id'] as String,
+                        child: Text(c['usu_nome']),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _escolaIdSelecionada == null
+                    ? null
+                    : (val) => setState(() => _cuidadorIdSelecionado = val),
                 validator: (v) => v == null ? 'Selecione o responsável' : null,
               ),
 
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _salvarAluno,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                child: Text(widget.alunoEdicao != null ? 'Salvar Alterações' : 'Cadastrar Aluno'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: Text(
+                  widget.alunoEdicao != null
+                      ? 'Salvar Alterações'
+                      : 'Cadastrar Aluno',
+                ),
               ),
             ],
           ),

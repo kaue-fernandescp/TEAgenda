@@ -25,14 +25,12 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
   List<Map<String, dynamic>> _escolas = [];
   List<Map<String, dynamic>> _professores = [];
 
-  bool _carregando = true;
-
   @override
   void initState() {
     super.initState();
     _inicializarDados();
   }
-  
+
   Future<void> _inicializarDados() async {
     try {
       final resultados = await Future.wait([
@@ -45,7 +43,6 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
         _turnos = List<Map<String, dynamic>>.from(resultados[0]);
         _anos = List<Map<String, dynamic>>.from(resultados[1]);
         _escolas = List<Map<String, dynamic>>.from(resultados[2]);
-        _carregando = false;
       });
 
       if (widget.turmaEdicao != null) {
@@ -53,9 +50,9 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
         _turnoIdSelecionado = widget.turmaEdicao!['tur_turno'];
         _anoIdSelecionado = widget.turmaEdicao!['tur_ano'];
         _escolaIdSelecionada = widget.turmaEdicao!['tur_escola'];
-        
+
         await _carregarProfessores(_escolaIdSelecionada!);
-        
+
         setState(() {
           _professorIdSelecionado = widget.turmaEdicao!['tur_professor'];
         });
@@ -67,7 +64,11 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
 
   Future<void> _carregarProfessores(int escolaId) async {
     try {
-      final lista = await supabase.from('usuarios_com_cargos').select().eq('usu_escola', escolaId).ilike('cargo_nome', 'PROFESSOR%');
+      final lista = await supabase
+          .from('usuarios_com_cargos')
+          .select()
+          .eq('usu_escola', escolaId)
+          .ilike('cargo_nome', 'PROFESSOR%');
 
       setState(() {
         _professores = List<Map<String, dynamic>>.from(lista);
@@ -89,7 +90,10 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
 
       try {
         if (widget.turmaEdicao != null) {
-          await supabase.from('turmas').update(dados).eq('tur_id', widget.turmaEdicao!['tur_id']);
+          await supabase
+              .from('turmas')
+              .update(dados)
+              .eq('tur_id', widget.turmaEdicao!['tur_id']);
         } else {
           await supabase.from('turmas').insert(dados);
         }
@@ -98,13 +102,20 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.turmaEdicao != null ? 'Turma atualizada!' : 'Turma cadastrada!'),
+            content: Text(
+              widget.turmaEdicao != null
+                  ? 'Turma atualizada!'
+                  : 'Turma cadastrada!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro ao salvar: $e"), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Erro ao salvar: $e"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -113,7 +124,9 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.turmaEdicao != null ? 'Editar Turma' : 'Nova Turma')),
+      appBar: AppBar(
+        title: Text(widget.turmaEdicao != null ? 'Editar Turma' : 'Nova Turma'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -122,15 +135,21 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
             children: [
               TextFormField(
                 controller: _numeroController,
-                decoration: const InputDecoration(labelText: 'Número da Turma', prefixIcon: Icon(Icons.door_front_door)),
+                decoration: const InputDecoration(
+                  labelText: 'Número da Turma',
+                  prefixIcon: Icon(Icons.door_front_door),
+                ),
                 validator: (v) => v!.isEmpty ? 'Informe o número' : null,
               ),
 
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _turnoIdSelecionado,
+                initialValue: _turnoIdSelecionado,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Turno', prefixIcon: Icon(Icons.schedule)),
+                decoration: const InputDecoration(
+                  labelText: 'Turno',
+                  prefixIcon: Icon(Icons.schedule),
+                ),
                 items: _turnos.map((t) {
                   return DropdownMenuItem<int>(
                     value: t['trn_id'] as int,
@@ -140,17 +159,20 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
                 onChanged: (val) {
                   print("Turno selecionado: $val");
                   setState(() => _turnoIdSelecionado = val);
-                }
+                },
               ),
 
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _anoIdSelecionado,
+                initialValue: _anoIdSelecionado,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Ano Letivo', prefixIcon: Icon(Icons.event)),
+                decoration: const InputDecoration(
+                  labelText: 'Ano Letivo',
+                  prefixIcon: Icon(Icons.event),
+                ),
                 items: _anos.map((a) {
                   return DropdownMenuItem<int>(
-                    value: a['ano_id'] as int, 
+                    value: a['ano_id'] as int,
                     child: Text("${a['ano_numero']}º Ano"),
                   );
                 }).toList(),
@@ -162,9 +184,19 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
 
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _escolaIdSelecionada,
-                decoration: const InputDecoration(labelText: 'Escola vinculada', prefixIcon: Icon(Icons.school)),
-                items: _escolas.map((e) => DropdownMenuItem(value: e['esc_id'] as int, child: Text(e['esc_nome']))).toList(),
+                initialValue: _escolaIdSelecionada,
+                decoration: const InputDecoration(
+                  labelText: 'Escola vinculada',
+                  prefixIcon: Icon(Icons.school),
+                ),
+                items: _escolas
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e['esc_id'] as int,
+                        child: Text(e['esc_nome']),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) async {
                   setState(() {
                     _escolaIdSelecionada = val;
@@ -180,19 +212,37 @@ class _AdicionarTurmaPageState extends State<AdicionarTurmaPage> {
 
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _professorIdSelecionado,
+                initialValue: _professorIdSelecionado,
                 disabledHint: const Text("Selecione uma escola primeiro"),
-                decoration: const InputDecoration(labelText: 'Professor responsável', prefixIcon: Icon(Icons.person_pin)),
-                items: _professores.map((p) => DropdownMenuItem(value: p['usu_id'] as String, child: Text(p['usu_nome']))).toList(),
-                onChanged: _escolaIdSelecionada == null ? null : (val) => setState(() => _professorIdSelecionado = val),
+                decoration: const InputDecoration(
+                  labelText: 'Professor responsável',
+                  prefixIcon: Icon(Icons.person_pin),
+                ),
+                items: _professores
+                    .map(
+                      (p) => DropdownMenuItem(
+                        value: p['usu_id'] as String,
+                        child: Text(p['usu_nome']),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _escolaIdSelecionada == null
+                    ? null
+                    : (val) => setState(() => _professorIdSelecionado = val),
                 validator: (v) => v == null ? 'Selecione um professor' : null,
               ),
 
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _salvarTurma,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                child: Text(widget.turmaEdicao != null ? 'Salvar Alterações' : 'Cadastrar Turma'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: Text(
+                  widget.turmaEdicao != null
+                      ? 'Salvar Alterações'
+                      : 'Cadastrar Turma',
+                ),
               ),
             ],
           ),

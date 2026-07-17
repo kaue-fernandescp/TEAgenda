@@ -11,14 +11,11 @@ void main() async {
 
   // Inicializnado o Supabase
   await Supabase.initialize(
-    url: 'https://zzoadaxqwvewiisymdfk.supabase.co',    // URL do supabase
-    anonKey: 'sb_publishable_fEwVPjjLvoM5BGimwlAGrg_nRf9tlKS'      // Senha da API
+    url: 'https://zzoadaxqwvewiisymdfk.supabase.co', // URL do supabase
+    anonKey: 'sb_publishable_fEwVPjjLvoM5BGimwlAGrg_nRf9tlKS', // Senha da API
   );
 
-
-  runApp(
-    MyApp(),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
